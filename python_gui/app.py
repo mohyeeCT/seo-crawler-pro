@@ -1,10 +1,17 @@
 """
 app.py - SEO Crawler Streamlit GUI
-JS rendering via Playwright + Jina AI embeddings + semantic analysis
+Fixes:
+- nest_asyncio patched before anything else (fixes asyncio.run() conflict with Streamlit)
+- Uses get_event_loop().run_until_complete() instead of asyncio.run()
+- Session state persists results across Streamlit reruns
 """
-import asyncio, json, io, os, sys
+import sys
 from pathlib import Path
-import numpy as np
+
+import nest_asyncio
+nest_asyncio.apply()
+
+import asyncio
 import pandas as pd
 import streamlit as st
 
@@ -13,10 +20,9 @@ from crawler import crawl_site
 from embedder import embed_pages
 from analyzer import run_full_analysis
 
-st.set_page_config(page_title="SEO Crawler", page_icon="🕷", layout="wide", initial_sidebar_state="expanded")
+st.set_page_config(page_title="SEO Crawler", page_icon="\U0001f577", layout="wide", initial_sidebar_state="expanded")
 
-st.markdown("""
-<style>
+st.markdown("""<style>
 @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@300;400;600&display=swap');
 html, body, [class*="css"] { font-family: 'IBM Plex Sans', sans-serif; }
 .main-header { background: #0f0f0f; color: #f0f0f0; padding: 1.5rem 2rem; border-radius: 4px; margin-bottom: 1.5rem; border-left: 4px solid #00d4aa; }
@@ -26,15 +32,12 @@ html, body, [class*="css"] { font-family: 'IBM Plex Sans', sans-serif; }
 .metric-card .value { font-family: 'IBM Plex Mono', monospace; font-size: 1.8rem; font-weight: 600; color: #0f0f0f; }
 .metric-card .label { font-size: 0.78rem; color: #666; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 4px; }
 .section-header { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1.5px; color: #888; border-bottom: 1px solid #e8e8e8; padding-bottom: 0.4rem; margin: 1.5rem 0 1rem; }
-</style>
-""", unsafe_allow_html=True)
+</style>""", unsafe_allow_html=True)
 
-st.markdown("""<div class="main-header"><h1>🕷 SEO Crawler</h1><p>JS rendering · Jina AI embeddings · Semantic duplicate detection · Internal linking gaps</p></div>""", unsafe_allow_html=True)
+st.markdown('''<div class="main-header"><h1>\U0001f577 SEO Crawler</h1><p>JS rendering · Jina AI embeddings · Semantic duplicates · Linking gaps</p></div>''', unsafe_allow_html=True)
 
-if "results" not in st.session_state:
-    st.session_state.results = None
-if "analysis" not in st.session_state:
-    st.session_state.analysis = None
+for key in ("results", "analysis"):
+    if key not in st.session_state: st.session_state[key] = None
 
 with st.sidebar:
     st.markdown("### Crawl Settings")
@@ -55,46 +58,41 @@ with st.sidebar:
     run_btn = st.button("Run Crawl", type="primary", use_container_width=True)
 
 if run_btn:
-    if not url_input:
-        st.error("Enter a URL to crawl.")
-        st.stop()
-    if use_embeddings and not jina_key:
-        st.warning("Jina API key required for semantic analysis. Crawling without embeddings.")
-        use_embeddings = False
+    if not url_input: st.error("Enter a URL to crawl."); st.stop()
+    if use_embeddings and not jina_key: st.warning("No Jina key — crawling without embeddings."); use_embeddings = False
     st.session_state.results = None
     st.session_state.analysis = None
 
     st.markdown('<div class="section-header">Crawling</div>', unsafe_allow_html=True)
-    crawl_progress = st.progress(0)
+    crawl_bar = st.progress(0)
     crawl_status = st.empty()
     crawl_status.info(f"Starting crawl of {url_input}...")
 
-    def crawl_cb(done, total, current_url):
-        crawl_progress.progress(min(done / total, 1.0))
+    def on_crawl_progress(done, total, current_url):
+        crawl_bar.progress(min(done / total, 1.0))
         crawl_status.info(f"Crawled {done}/{total} — {current_url}")
 
     try:
-        pages = asyncio.run(crawl_site(start_url=url_input, max_pages=max_pages, wait_until=wait_strategy, timeout_ms=timeout * 1000, progress_callback=crawl_cb))
-        crawl_progress.progress(1.0)
-        crawl_status.success(f"Crawl complete — {len(pages)} pages")
+        loop = asyncio.get_event_loop()
+        pages = loop.run_until_complete(crawl_site(start_url=url_input, max_pages=max_pages, wait_until=wait_strategy, timeout_ms=timeout * 1000, progress_callback=on_crawl_progress))
+        crawl_bar.progress(1.0)
+        crawl_status.success(f"Done — {len(pages)} pages crawled")
     except Exception as e:
-        crawl_status.error(f"Crawl failed: {e}")
-        st.stop()
+        crawl_status.error(f"Crawl failed: {e}"); st.stop()
 
     if use_embeddings and jina_key and pages:
         st.markdown('<div class="section-header">Generating Embeddings</div>', unsafe_allow_html=True)
-        embed_progress = st.progress(0)
+        embed_bar = st.progress(0)
         embed_status = st.empty()
-        embed_status.info("Sending pages to Jina AI...")
-        def embed_cb(done, total):
-            embed_progress.progress(min(done / total, 1.0))
-            embed_status.info(f"Embedded {done}/{total} pages")
+        embed_status.info(f"Embedding {sum(1 for p in pages if p.get('body_text'))} pages via Jina AI...")
+        def on_embed_progress(done, total):
+            if total > 0: embed_bar.progress(min(done / total, 1.0)); embed_status.info(f"Embedded {done}/{total} pages")
         try:
-            pages = embed_pages(pages, api_key=jina_key, use_jina_reader=use_reader, progress_callback=embed_cb)
-            embed_progress.progress(1.0)
-            embed_status.success(f"Embeddings done — {sum(1 for p in pages if p.get('embedding'))}/{len(pages)} pages")
+            pages = embed_pages(pages, api_key=jina_key, use_jina_reader=use_reader, progress_callback=on_embed_progress)
+            embed_bar.progress(1.0)
+            embed_status.success(f"Done — {sum(1 for p in pages if p.get('embedding'))}/{len(pages)} pages embedded")
         except Exception as e:
-            embed_status.warning(f"Embedding failed: {e}")
+            embed_status.warning(f"Embedding failed: {e}. Continuing without semantic analysis.")
 
     analysis = run_full_analysis(pages, duplicate_threshold=dup_threshold, n_clusters=n_clusters)
     st.session_state.results = pages
@@ -106,9 +104,8 @@ if st.session_state.analysis:
     summary = analysis["summary"]
 
     st.markdown('<div class="section-header">Summary</div>', unsafe_allow_html=True)
-    cols = st.columns(5)
-    metrics = [("total_pages", "Pages crawled"), ("avg_seo_score", "Avg SEO score"), ("pages_with_issues", "Pages with issues"), ("duplicate_pairs", "Semantic duplicates"), ("embedded_pages", "Pages embedded")]
-    for col, (key, label) in zip(cols, metrics):
+    c1, c2, c3, c4, c5 = st.columns(5)
+    for col, (key, label) in zip([c1, c2, c3, c4, c5], [("total_pages","Pages crawled"),("avg_seo_score","Avg SEO score"),("pages_with_issues","Pages with issues"),("duplicate_pairs","Semantic duplicates"),("embedded_pages","Pages embedded")]):
         with col:
             st.markdown(f'<div class="metric-card"><div class="value">{summary[key]}</div><div class="label">{label}</div></div>', unsafe_allow_html=True)
 
@@ -116,56 +113,50 @@ if st.session_state.analysis:
     tab1, tab2, tab3, tab4, tab5 = st.tabs(["All Pages", "Issues", "Semantic Duplicates", "Linking Gaps", "Topical Clusters"])
 
     with tab1:
-        df_cols = ["url", "status_code", "title", "title_length", "meta_desc_length", "h1", "h1_count", "h2_count", "word_count", "images_missing_alt", "schema_types", "seo_score", "issue_count", "cluster_label"]
-        available = [c for c in df_cols if c in (analysis["pages"][0] if analysis["pages"] else {})]
-        df = pd.DataFrame(analysis["pages"])[available]
-        st.dataframe(df.style.applymap(lambda v: "background-color: #d4edda" if v >= 80 else "background-color: #fff3cd" if v >= 60 else "background-color: #f8d7da", subset=["seo_score"]), use_container_width=True, height=500)
+        cols = ["url","status_code","title","title_length","meta_desc_length","h1","h1_count","h2_count","word_count","images_missing_alt","schema_types","seo_score","issue_count","cluster_label"]
+        sample = analysis["pages"][0] if analysis["pages"] else {}
+        df = pd.DataFrame(analysis["pages"])[[c for c in cols if c in sample]]
+        st.dataframe(df.style.applymap(lambda v: "#d4edda" if v >= 80 else "#fff3cd" if v >= 60 else "#f8d7da", subset=["seo_score"]), use_container_width=True, height=500)
         st.download_button("Download CSV", df.to_csv(index=False), file_name="seo_crawl.csv", mime="text/csv")
 
     with tab2:
         issue_pages = [p for p in analysis["pages"] if p.get("issues")]
-        if not issue_pages:
-            st.success("No issues found.")
+        if not issue_pages: st.success("No issues found.")
         else:
+            issue_counts = {}
+            for p in issue_pages:
+                for issue in p["issues"]:
+                    k = issue.split("(")[0].strip(); issue_counts[k] = issue_counts.get(k, 0) + 1
             col_a, col_b = st.columns([1, 2])
             with col_a:
-                issue_counts = {}
-                for page in issue_pages:
-                    for issue in page["issues"]:
-                        key = issue.split("(")[0].strip()
-                        issue_counts[key] = issue_counts.get(key, 0) + 1
-                st.dataframe(pd.DataFrame(sorted(issue_counts.items(), key=lambda x: x[1], reverse=True), columns=["Issue", "Count"]), use_container_width=True, hide_index=True)
+                st.dataframe(pd.DataFrame(sorted(issue_counts.items(), key=lambda x: x[1], reverse=True), columns=["Issue","Count"]), use_container_width=True, hide_index=True)
             with col_b:
-                rows = [{"URL": p["url"], "Score": p.get("seo_score", 0), "Issues": " | ".join(p["issues"])} for p in sorted(issue_pages, key=lambda x: x.get("seo_score", 0))]
-                st.dataframe(pd.DataFrame(rows), use_container_width=True, hide_index=True)
+                st.dataframe(pd.DataFrame([{"URL": p["url"], "Score": p.get("seo_score",0), "Issues": " | ".join(p["issues"])} for p in sorted(issue_pages, key=lambda x: x.get("seo_score",0))]), use_container_width=True, hide_index=True)
 
     with tab3:
         dupes = analysis["semantic_duplicates"]
-        if not dupes:
-            st.info(f"No semantic duplicates detected at {dup_threshold} threshold.")
+        if not dupes: st.info(f"No duplicates found at {dup_threshold} threshold.")
         else:
-            st.caption(f"{len(dupes)} pairs above {dup_threshold} threshold")
-            dupe_df = pd.DataFrame(dupes)[["url_a", "url_b", "similarity", "recommendation", "title_a", "title_b"]]
+            st.caption(f"{len(dupes)} pairs above {dup_threshold} similarity")
+            dupe_df = pd.DataFrame(dupes)[["url_a","url_b","similarity","recommendation","title_a","title_b"]]
             st.dataframe(dupe_df, use_container_width=True, hide_index=True)
             st.download_button("Download duplicates CSV", dupe_df.to_csv(index=False), file_name="semantic_duplicates.csv", mime="text/csv")
 
     with tab4:
         gaps = analysis["linking_gaps"]
-        if not gaps:
-            st.info("No linking gaps found, or embeddings were not generated.")
+        if not gaps: st.info("No linking gaps found.")
         else:
             st.caption(f"{len(gaps)} pages have internal linking opportunities")
             for gap in gaps[:50]:
                 with st.expander(f"{gap['source_url']} — {len(gap['linking_opportunities'])} opportunities"):
                     for opp in gap["linking_opportunities"]:
-                        st.markdown(f"→ [{opp['target_title'] or opp['target_url']}]({opp['target_url']}) — similarity: `{opp['similarity']}`")
+                        st.markdown(f"\u2192 [{opp['target_title'] or opp['target_url']}]({opp['target_url']}) — similarity: `{opp['similarity']}`")
 
     with tab5:
-        cluster_ids = sorted(set(p.get("cluster", -1) for p in analysis["pages"]))
-        for cid in cluster_ids:
+        for cid in sorted(set(p.get("cluster",-1) for p in analysis["pages"])):
             cluster_list = [p for p in analysis["pages"] if p.get("cluster") == cid]
-            with st.expander(f"Cluster {cid} — {len(cluster_list)} pages"):
+            with st.expander(f"Cluster {cid} — {len(cluster_list)} pages" if cid >= 0 else f"Unembedded — {len(cluster_list)} pages"):
                 for cp in cluster_list:
                     score = cp.get("seo_score", 0)
-                    badge = "#d4edda" if score >= 80 else "#fff3cd" if score >= 60 else "#f8d7da"
-                    st.markdown(f'<span style="background:{badge};padding:2px 8px;border-radius:3px;font-family:monospace;font-size:0.8rem">{score}</span> <a href="{cp["url"]}" target="_blank">{cp.get("title") or cp["url"]}</a>', unsafe_allow_html=True)
+                    bg = "#d4edda" if score >= 80 else "#fff3cd" if score >= 60 else "#f8d7da"
+                    st.markdown(f'<span style="background:{bg};padding:2px 8px;border-radius:3px;font-family:monospace;font-size:0.8rem">{score}</span> <a href="{cp["url"]}" target="_blank">{cp.get("title") or cp["url"]}</a>', unsafe_allow_html=True)
