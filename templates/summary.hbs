@@ -1,0 +1,2201 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SEO Analysis Report</title>
+  <link rel="icon"
+    href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ctext y='14' font-size='12'%3E🔍%3C/text%3E%3C/svg%3E">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+      font-size: 13px;
+      line-height: 1.4;
+      color: #1a1a1a;
+      background: #f8f9fa;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+      color: white;
+      padding: 12px 20px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      position: sticky;
+      top: 0;
+      z-index: 200;
+    }
+
+    .header-content {
+      max-width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .header h1 {
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    .header-info {
+      font-size: 11px;
+      opacity: 0.85;
+    }
+
+    .tabs {
+      display: flex;
+      background: white;
+      border-bottom: 1px solid #ddd;
+      position: sticky;
+      top: 48px;
+      z-index: 100;
+      overflow-x: auto;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    }
+
+    .tab {
+      padding: 10px 18px;
+      cursor: pointer;
+      border: none;
+      background: none;
+      font-size: 12px;
+      color: #555;
+      border-bottom: 2px solid transparent;
+      transition: all 0.2s;
+      white-space: nowrap;
+      font-weight: 500;
+    }
+
+    .tab:hover {
+      background: #f5f5f5;
+      color: #000;
+    }
+
+    .tab.active {
+      color: #2c3e50;
+      border-bottom-color: #2c3e50;
+      background: #fafafa;
+    }
+
+    /* Dropdown tabs */
+    .dropdown { position: relative; }
+    .dropdown-menu {
+      display: none;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.08);
+      min-width: 180px;
+      padding: 6px 0;
+      white-space: nowrap;
+    }
+    .dropdown:hover .dropdown-menu { display: block; }
+    .dropdown-menu a {
+      display: block;
+      padding: 8px 12px;
+      color: #333;
+      text-decoration: none;
+      font-size: 12px;
+    }
+    .dropdown-menu a:hover { background: #f5f5f5; }
+
+    .container {
+      max-width: 100%;
+      background: white;
+      min-height: calc(100vh - 120px);
+    }
+
+    .tab-content {
+      display: none;
+      padding: 16px;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    h2 {
+      font-size: 16px;
+      font-weight: 600;
+      color: #1a1a1a;
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid #2c3e50;
+    }
+
+    h3 {
+      font-size: 14px;
+      font-weight: 600;
+      color: #333;
+      margin: 16px 0 10px 0;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 10px;
+      margin: 12px 0;
+    }
+
+    .stat-card {
+      background: #f8f9fa;
+      padding: 12px;
+      border-radius: 4px;
+      border-left: 3px solid #2c3e50;
+    }
+
+    .score-section {
+      margin: 16px 0 24px 0;
+    }
+
+    .score-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 16px;
+      margin: 16px 0;
+    }
+
+    .score-card {
+      background: white;
+      border: 1px solid #e0e0e0;
+      border-radius: 6px;
+      padding: 18px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    }
+
+    .score-card.highlight {
+      background: linear-gradient(135deg, #23364f 0%, #1a2536 100%);
+      color: white;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .score-card.highlight::after {
+      content: '';
+      position: absolute;
+      top: -40px;
+      right: -40px;
+      width: 120px;
+      height: 120px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 50%;
+    }
+
+    .score-card h3 {
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 12px;
+      opacity: 0.8;
+    }
+
+    .score-value {
+      font-size: 46px;
+      font-weight: 700;
+      line-height: 1.1;
+    }
+
+    .score-grade {
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.4px;
+      text-transform: uppercase;
+      margin-top: 6px;
+    }
+
+    .score-metric {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 12px;
+      font-size: 12px;
+    }
+
+    .score-metric span:last-child {
+      font-weight: 600;
+    }
+
+    .score-note {
+      font-size: 11px;
+      color: #6c7a89;
+      margin-top: 8px;
+    }
+
+    .score-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      margin-top: 10px;
+      background: #e7ecf3;
+      color: #2c3e50;
+    }
+
+    .score-badge.excellent { background: #1b998b; color: white; }
+    .score-badge.good { background: #3c91e6; color: white; }
+    .score-badge.fair { background: #f4a261; color: white; }
+    .score-badge.poor { background: #e76f51; color: white; }
+    .score-badge.critical { background: #c44536; color: white; }
+
+    .category-list { margin: 0; padding: 0; list-style: none; }
+
+    .category-item {
+      margin-bottom: 12px;
+    }
+
+    .category-header {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      margin-bottom: 4px;
+      font-weight: 600;
+    }
+
+    .category-weight {
+      font-size: 11px;
+      font-weight: 500;
+      color: #6c7a89;
+      margin-left: 8px;
+    }
+
+    .category-bar {
+      position: relative;
+      background: #eef2f6;
+      border-radius: 4px;
+      height: 10px;
+      overflow: hidden;
+    }
+
+    .category-bar span {
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      transition: width 0.3s ease;
+    }
+    
+    /* Color gradient based on score */
+    .category-bar span[style*="width: 9"],
+    .category-bar span[style*="width: 10"] {
+      background: linear-gradient(90deg, #1b998b, #26d0b9);
+    }
+    
+    .category-bar span[style*="width: 8"] {
+      background: linear-gradient(90deg, #3c91e6, #5ba3f5);
+    }
+    
+    .category-bar span[style*="width: 7"] {
+      background: linear-gradient(90deg, #f4a261, #f7b87d);
+    }
+    
+    .category-bar span[style*="width: 6"],
+    .category-bar span[style*="width: 5"],
+    .category-bar span[style*="width: 4"],
+    .category-bar span[style*="width: 3"],
+    .category-bar span[style*="width: 2"],
+    .category-bar span[style*="width: 1"],
+    .category-bar span[style*="width: 0"] {
+      background: linear-gradient(90deg, #e76f51, #ef8b75);
+    }
+
+    .distribution-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 10px;
+      font-size: 12px;
+    }
+
+    .distribution-row {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .distribution-header {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    
+    .distribution-header span {
+      font-weight: 500;
+    }
+    
+    .distribution-header strong {
+      font-weight: 600;
+    }
+
+    .distribution-bar {
+      width: 100%;
+      height: 10px;
+      border-radius: 4px;
+      background: #eef2f6;
+      overflow: hidden;
+    }
+
+    .distribution-bar span {
+      display: block;
+      height: 100%;
+      transition: width 0.3s ease;
+    }
+    
+    /* Distribution bar colors */
+    .distribution-row:nth-child(1) .distribution-bar span {
+      background: linear-gradient(90deg, #1b998b, #26d0b9);
+    }
+    
+    .distribution-row:nth-child(2) .distribution-bar span {
+      background: linear-gradient(90deg, #3c91e6, #5ba3f5);
+    }
+    
+    .distribution-row:nth-child(3) .distribution-bar span {
+      background: linear-gradient(90deg, #f4a261, #f7b87d);
+    }
+    
+    .distribution-row:nth-child(4) .distribution-bar span {
+      background: linear-gradient(90deg, #ff9a3c, #ffb366);
+    }
+    
+    .distribution-row:nth-child(5) .distribution-bar span {
+      background: linear-gradient(90deg, #e76f51, #ef8b75);
+    }
+    
+    .distribution-row:nth-child(6) .distribution-bar span {
+      background: linear-gradient(90deg, #c44536, #d15a4c);
+    }
+
+    .top-issues {
+      margin-top: 12px;
+      border-top: 1px solid #e0e0e0;
+      padding-top: 12px;
+      font-size: 12px;
+    }
+
+    .top-issues li {
+      margin-bottom: 10px;
+      line-height: 1.5;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .severity-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 3px 8px;
+      border-radius: 3px;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      white-space: nowrap;
+      min-width: 65px;
+    }
+    
+    .severity-badge.critical {
+      background: #c44536;
+      color: white;
+    }
+    
+    .severity-badge.high {
+      background: #e76f51;
+      color: white;
+    }
+    
+    .severity-badge.medium {
+      background: #f4a261;
+      color: white;
+    }
+    
+    .severity-badge.low {
+      background: #3c91e6;
+      color: white;
+    }
+    
+    .severity-badge.architectural {
+      background: #6c7a89;
+      color: white;
+    }
+
+    .score-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+      margin-top: 12px;
+    }
+
+    .score-table th,
+    .score-table td {
+      padding: 6px 8px;
+      border-bottom: 1px solid #f0f0f0;
+      text-align: left;
+    }
+
+    .score-table th {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      background: #2c3e50;
+      color: white;
+    }
+    
+    .score-table td {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 250px;
+    }
+
+    .score-table .score-cell {
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .histogram { margin-top: 12px; display: flex; flex-direction: column; gap: 8px; }
+
+    .hist-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 12px;
+    }
+
+    .hist-label { width: 80px; font-weight: 600; }
+
+    .hist-bar {
+      flex: 1;
+      height: 10px;
+      border-radius: 999px;
+      background: #eef2f6;
+      overflow: hidden;
+    }
+
+    .hist-bar span {
+      display: block;
+      height: 100%;
+      background: linear-gradient(90deg, #20bf6b, #0fb9b1);
+    }
+
+    .hist-count { width: 40px; text-align: right; font-weight: 600; }
+
+    .stat-card.critical {
+      border-left-color: #dc3545;
+      background: #fff5f5;
+    }
+
+    .stat-card.warning {
+      border-left-color: #ffc107;
+      background: #fffef5;
+    }
+
+    .stat-label {
+      font-size: 11px;
+      color: #666;
+      margin-bottom: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+
+    .stat-value {
+      font-size: 28px;
+      font-weight: 700;
+      color: #1a1a1a;
+      line-height: 1;
+    }
+
+    .table-wrapper {
+      overflow-x: auto;
+      margin: 12px 0;
+      border: 1px solid #e0e0e0;
+      border-radius: 4px;
+    }
+
+    .table-controls {
+      margin: 10px 0;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .search-box {
+      padding: 6px 10px;
+      border: 1px solid #ddd;
+      border-radius: 3px;
+      font-size: 12px;
+      flex: 1;
+      max-width: 300px;
+    }
+
+    .search-box:focus {
+      outline: none;
+      border-color: #2c3e50;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+      background: white;
+    }
+
+    thead {
+      background: #2c3e50;
+      color: white;
+      position: sticky;
+      top: 0;
+    }
+
+    th {
+      padding: 8px 10px;
+      text-align: left;
+      font-weight: 600;
+      cursor: pointer;
+      user-select: none;
+      white-space: nowrap;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      color: white;
+    }
+
+    th:hover {
+      background: #34495e;
+    }
+
+    th::after {
+      content: ' ⇅';
+      opacity: 0.4;
+      font-size: 10px;
+    }
+
+    th.sort-asc::after {
+      content: ' ↑';
+      opacity: 1;
+    }
+
+    th.sort-desc::after {
+      content: ' ↓';
+      opacity: 1;
+    }
+
+    td {
+      padding: 6px 10px;
+      border-bottom: 1px solid #f0f0f0;
+      max-width: 500px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    td.url-cell {
+      max-width: 300px;
+    }
+
+    td:hover {
+      overflow: visible;
+      white-space: normal;
+      word-break: break-all;
+      position: relative;
+      z-index: 10;
+      background: white;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    tbody tr {
+      transition: background-color 0.1s;
+    }
+
+    tbody tr:hover {
+      background: #f8f9fa;
+    }
+
+    tbody tr:nth-child(even) {
+      background: #fafbfc;
+    }
+
+    tbody tr:nth-child(even):hover {
+      background: #f5f5f5;
+    }
+
+    .url-link {
+      color: #0066cc;
+      text-decoration: none;
+      word-break: break-all;
+    }
+
+    .url-link:hover {
+      text-decoration: underline;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 2px 6px;
+      border-radius: 2px;
+      font-size: 10px;
+      font-weight: 600;
+      white-space: nowrap;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+
+    .badge-success {
+      background: #d4edda;
+      color: #155724;
+    }
+
+    .badge-warning {
+      background: #fff3cd;
+      color: #856404;
+    }
+
+    .badge-error {
+      background: #f8d7da;
+      color: #721c24;
+    }
+
+    .badge-info {
+      background: #d1ecf1;
+      color: #0c5460;
+    }
+
+    .issue-summary {
+      background: #f8f9fa;
+      padding: 12px;
+      border-radius: 4px;
+      margin: 12px 0;
+      border-left: 3px solid #2c3e50;
+      font-size: 12px;
+    }
+
+    .issue-summary p {
+      margin: 4px 0;
+    }
+
+    .critical-text {
+      color: #dc3545;
+      font-weight: 600;
+    }
+
+    .warning-text {
+      color: #ffc107;
+      font-weight: 600;
+    }
+
+    .success-text {
+      color: #28a745;
+      font-weight: 600;
+    }
+
+    .truncate {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .no-wrap {
+      white-space: nowrap;
+    }
+
+    /* Mobile Responsive Styles */
+    @media (max-width: 768px) {
+      .header {
+        padding: 10px 15px;
+      }
+
+      .header h1 {
+        font-size: 16px;
+      }
+
+      .header-info {
+        font-size: 10px;
+      }
+
+      .tabs {
+        top: 42px;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      .tab {
+        padding: 10px 14px;
+        font-size: 11px;
+      }
+
+      .container {
+        min-height: calc(100vh - 100px);
+      }
+
+      .tab-content {
+        padding: 12px;
+      }
+
+      h2 {
+        font-size: 14px;
+      }
+
+      .stats-grid {
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        gap: 8px;
+      }
+
+      .stat-card {
+        padding: 10px;
+      }
+
+      .stat-label {
+        font-size: 10px;
+      }
+
+      .stat-value {
+        font-size: 22px;
+      }
+
+      .table-controls {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+      }
+
+      .search-box {
+        max-width: 100%;
+        font-size: 14px;
+      }
+
+      .table-wrapper {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        position: relative;
+      }
+
+      .table-wrapper::after {
+        content: '⇄';
+        position: absolute;
+        right: 10px;
+        bottom: 10px;
+        background: rgba(44, 62, 80, 0.8);
+        color: white;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 12px;
+        pointer-events: none;
+        opacity: 0.7;
+      }
+
+      table {
+        font-size: 11px;
+      }
+
+      th {
+        padding: 6px 8px;
+        font-size: 10px;
+      }
+
+      td {
+        padding: 5px 8px;
+      }
+
+      .badge {
+        font-size: 9px;
+        padding: 2px 5px;
+      }
+
+      .issue-summary {
+        padding: 10px;
+        font-size: 11px;
+      }
+
+      .tree-node {
+        font-size: 11px;
+      }
+
+      /* Better touch targets */
+      button,
+      .tab,
+      a {
+        min-height: 44px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .tab {
+        min-height: 44px;
+      }
+
+      /* Pager buttons */
+      #pages-table-pager button,
+      #internal-links-table-pager button,
+      #external-links-table-pager button,
+      #headings-table-pager button,
+      #images-table-pager button,
+      #performance-table-pager button,
+      #issues-table-pager button,
+      #pages404-table-pager button,
+      #not-in-sitemap-table-pager button,
+      #orphan-urls-table-pager button,
+      #non-indexable-sitemap-table-pager button {
+        padding: 8px 12px;
+        font-size: 14px;
+        background: #f8f9fa;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        cursor: pointer;
+        min-height: 44px;
+      }
+
+      /* Select dropdowns */
+      select {
+        padding: 8px;
+        font-size: 14px;
+        min-height: 44px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .stat-value {
+        font-size: 20px;
+      }
+
+      .header-content {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+      }
+
+      .url-cell {
+        max-width: 150px;
+      }
+
+      /* Single column for charts on very small screens */
+      div[style*="grid-template-columns: repeat(auto-fit"] {
+        grid-template-columns: 1fr !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="header">
+    <div class="header-content">
+      <h1>🔍 SEO Analysis Report</h1>
+      <div class="header-info">
+        {{timestamp}} | {{totalPages}} pages
+      </div>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" data-tab="overview" onclick="showTab('overview')">Overview</button>
+    <button class="tab" data-tab="scores" onclick="showTab('scores')">Scores</button>
+    <button class="tab" data-tab="pages" onclick="showTab('pages')">All Pages</button>
+    <button class="tab" data-tab="performance" onclick="showTab('performance')">Performance</button>
+    <button class="tab" data-tab="structure" onclick="showTab('structure')">Site Structure</button>
+    <div class="dropdown">
+      <button class="tab" data-tab="content" onclick="event.stopPropagation(); return false;">Content ▾</button>
+      <div class="dropdown-menu">
+        <a href="javascript:void(0)" onclick="showTab('content')">Headings & Images</a>
+        <a href="javascript:void(0)" onclick="showTab('links')">Links</a>
+        <a href="javascript:void(0)" onclick="showTab('scripts')">Scripts</a>
+      </div>
+    </div>
+    <button class="tab" data-tab="sitemap" onclick="showTab('sitemap')">Sitemap</button>
+    <button class="tab" data-tab="404s" onclick="showTab('404s')">404 Pages</button>
+    <button class="tab" data-tab="issues" onclick="showTab('issues')">Issues</button>
+    <button class="tab" data-tab="api" onclick="showTab('api')">API</button>
+  </div>
+
+  <div class="container">
+    <!-- Overview Tab -->
+    <div id="tab-overview" class="tab-content active">
+      <h2>Overview</h2>
+      
+      {{#if siteScore}}
+      <div class="score-grid" style="margin-bottom: 24px;">
+        <div class="score-card highlight">
+          <h3>Overall SEO Score</h3>
+          <div class="score-value">{{formatScore siteScore.overallScore}}</div>
+          <div class="score-grade">Weighted industry-aligned score</div>
+          {{#with (scoreGrade siteScore.overallScore) as |grade|}}
+          <div class="{{scoreClass grade}}">{{grade}}</div>
+          {{/with}}
+        </div>
+        <div class="score-card">
+          <h3>Quick Stats</h3>
+          <div class="score-metric"><span>Average page score</span><span>{{formatScore siteScore.averagePageScore}}</span></div>
+          <div class="score-metric"><span>Top 20% pages</span><span>{{formatScore siteScore.topPagesScore}}</span></div>
+          <div class="score-metric"><span>Pages w/out critical issues</span><span>{{formatScore siteScore.percentageWithoutErrors 1}}%</span></div>
+          <div class="score-metric"><span>Total pages analyzed</span><span>{{totalPages}}</span></div>
+        </div>
+      </div>
+      {{else}}
+      <p>No scoring data available.</p>
+      {{/if}}
+
+      <h2>Overview Statistics</h2>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-label">Total Pages</div>
+          <div class="stat-value">{{totalPages}}</div>
+        </div>
+        <div class="stat-card {{#if issuesSummary.missingTitles}}critical{{/if}}">
+          <div class="stat-label">Missing Titles</div>
+          <div class="stat-value">{{issuesSummary.missingTitles}}</div>
+        </div>
+        <div class="stat-card {{#if issuesSummary.missingH1}}warning{{/if}}">
+          <div class="stat-label">Missing H1</div>
+          <div class="stat-value">{{issuesSummary.missingH1}}</div>
+        </div>
+        <div class="stat-card {{#if issuesSummary.brokenLinks}}critical{{/if}}">
+          <div class="stat-label">Broken Links</div>
+          <div class="stat-value">{{issuesSummary.brokenLinks}}</div>
+        </div>
+        <div class="stat-card {{#if issuesSummary.imagesWithoutAlt}}warning{{/if}}">
+          <div class="stat-label">Images w/o Alt</div>
+          <div class="stat-value">{{issuesSummary.imagesWithoutAlt}}</div>
+        </div>
+        <div class="stat-card {{#if issuesSummary.thinContent}}warning{{/if}}">
+          <div class="stat-label">Thin Content</div>
+          <div class="stat-value">{{issuesSummary.thinContent}}</div>
+        </div>
+        <div class="stat-card {{#if issuesSummary.brokenLinks}}critical{{/if}}">
+          <div class="stat-label">404 Pages</div>
+          <div class="stat-value">{{issuesSummary.brokenLinks}}</div>
+        </div>
+      </div>
+
+      <!-- Charts Section -->
+      <h2 style="margin-top: 16px;">Visual Analytics</h2>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; margin: 16px 0;">
+        <!-- Issues Chart -->
+        <div style="background: white; padding: 16px; border-radius: 4px; border: 1px solid #e0e0e0;">
+          <h3 style="margin: 0 0 12px 0; font-size: 13px;">Issue Distribution</h3>
+          <div style="display: flex; flex-direction: column; gap: 8px;">
+            {{#if (gt issuesSummary.missingTitles 0)}}
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="width: 120px; font-size: 11px;">Missing Titles</span>
+              <div style="flex: 1; background: #f0f0f0; height: 20px; border-radius: 2px; overflow: hidden;">
+                <div
+                  style="background: #dc3545; height: 100%; width: {{percentage issuesSummary.missingTitles totalPages}}%;">
+                </div>
+              </div>
+              <span style="font-weight: 600; font-size: 11px; min-width: 30px;">{{issuesSummary.missingTitles}}</span>
+            </div>
+            {{/if}}
+            {{#if (gt issuesSummary.missingH1 0)}}
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="width: 120px; font-size: 11px;">Missing H1</span>
+              <div style="flex: 1; background: #f0f0f0; height: 20px; border-radius: 2px; overflow: hidden;">
+                <div style="background: #ffc107; height: 100%; width: {{percentage issuesSummary.missingH1 totalPages}}%;">
+                </div>
+              </div>
+              <span style="font-weight: 600; font-size: 11px; min-width: 30px;">{{issuesSummary.missingH1}}</span>
+            </div>
+            {{/if}}
+            {{#if (gt issuesSummary.thinContent 0)}}
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="width: 120px; font-size: 11px;">Thin Content</span>
+              <div style="flex: 1; background: #f0f0f0; height: 20px; border-radius: 2px; overflow: hidden;">
+                <div style="background: #ffc107; height: 100%; width: {{percentage issuesSummary.thinContent totalPages}}%;">
+                </div>
+              </div>
+              <span style="font-weight: 600; font-size: 11px; min-width: 30px;">{{issuesSummary.thinContent}}</span>
+            </div>
+            {{/if}}
+            {{#if (gt issuesSummary.imagesWithoutAlt 0)}}
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="width: 120px; font-size: 11px;">Images w/o Alt</span>
+              <div style="flex: 1; background: #f0f0f0; height: 20px; border-radius: 2px; overflow: hidden;">
+                <div
+                  style="background: #ffc107; height: 100%; width: {{percentage issuesSummary.imagesWithoutAlt totalPages}}%;">
+                </div>
+              </div>
+              <span style="font-weight: 600; font-size: 11px; min-width: 30px;">{{issuesSummary.imagesWithoutAlt}}</span>
+            </div>
+            {{/if}}
+            {{#if (gt issuesSummary.slowPages 0)}}
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="width: 120px; font-size: 11px;">Slow Pages</span>
+              <div style="flex: 1; background: #f0f0f0; height: 20px; border-radius: 2px; overflow: hidden;">
+                <div style="background: #ffc107; height: 100%; width: {{percentage issuesSummary.slowPages totalPages}}%;">
+                </div>
+              </div>
+              <span style="font-weight: 600; font-size: 11px; min-width: 30px;">{{issuesSummary.slowPages}}</span>
+            </div>
+            {{/if}}
+          </div>
+        </div>
+
+        <!-- Response Time Distribution -->
+        <div style="background: white; padding: 16px; border-radius: 4px; border: 1px solid #e0e0e0;">
+          <h3 style="margin: 0 0 12px 0; font-size: 13px;">Response Time Distribution</h3>
+          <div style="display: flex; flex-direction: column; gap: 8px;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="width: 100px; font-size: 11px;">Fast (&lt;1s)</span>
+              <div style="flex: 1; background: #f0f0f0; height: 20px; border-radius: 2px; overflow: hidden;">
+                <div style="background: #28a745; height: 100%; width: {{percentage fastPages totalPages}}%;"></div>
+              </div>
+              <span style="font-weight: 600; font-size: 11px; min-width: 30px;">{{fastPages}}</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="width: 100px; font-size: 11px;">Moderate (1-3s)</span>
+              <div style="flex: 1; background: #f0f0f0; height: 20px; border-radius: 2px; overflow: hidden;">
+                <div style="background: #ffc107; height: 100%; width: {{percentage moderatePages totalPages}}%;"></div>
+              </div>
+              <span style="font-weight: 600; font-size: 11px; min-width: 30px;">{{moderatePages}}</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="width: 100px; font-size: 11px;">Slow (>3s)</span>
+              <div style="flex: 1; background: #f0f0f0; height: 20px; border-radius: 2px; overflow: hidden;">
+                <div style="background: #dc3545; height: 100%; width: {{percentage slowPages totalPages}}%;"></div>
+              </div>
+              <span style="font-weight: 600; font-size: 11px; min-width: 30px;">{{slowPages}}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Content Quality -->
+        <div style="background: white; padding: 16px; border-radius: 4px; border: 1px solid #e0e0e0;">
+          <h3 style="margin: 0 0 12px 0; font-size: 13px;">Content Quality</h3>
+          <div style="display: flex; flex-direction: column; gap: 8px;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="width: 100px; font-size: 11px;">Good (>300w)</span>
+              <div style="flex: 1; background: #f0f0f0; height: 20px; border-radius: 2px; overflow: hidden;">
+                <div style="background: #28a745; height: 100%; width: {{percentage goodContentPages totalPages}}%;"></div>
+              </div>
+              <span style="font-weight: 600; font-size: 11px; min-width: 30px;">{{goodContentPages}}</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="width: 100px; font-size: 11px;">Thin (&lt;300w)</span>
+              <div style="flex: 1; background: #f0f0f0; height: 20px; border-radius: 2px; overflow: hidden;">
+                <div style="background: #ffc107; height: 100%; width: {{percentage thinContentPages totalPages}}%;"></div>
+              </div>
+              <span style="font-weight: 600; font-size: 11px; min-width: 30px;">{{thinContentPages}}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="issue-summary">
+        <h3 style="margin-top: 0;">Issue Summary</h3>
+        {{#if (gt issuesSummary.missingTitles 0)}}
+        <p><span class="critical-text">❌ {{issuesSummary.missingTitles}}</span> pages with missing titles</p>
+        {{/if}}
+        {{#if (gt issuesSummary.missingDescriptions 0)}}
+        <p><span class="warning-text">⚠️ {{issuesSummary.missingDescriptions}}</span> pages with missing meta descriptions
+        </p>
+        {{/if}}
+        {{#if (gt issuesSummary.duplicateTitles 0)}}
+        <p><span class="warning-text">⚠️ {{issuesSummary.duplicateTitles}}</span> pages with duplicate titles</p>
+        {{/if}}
+        {{#if (gt issuesSummary.missingH1 0)}}
+        <p><span class="warning-text">⚠️ {{issuesSummary.missingH1}}</span> pages missing H1 tags</p>
+        {{/if}}
+        {{#if (gt issuesSummary.multipleH1 0)}}
+        <p><span class="warning-text">⚠️ {{issuesSummary.multipleH1}}</span> pages with multiple H1 tags</p>
+        {{/if}}
+        {{#if (gt issuesSummary.brokenLinks 0)}}
+        <p><span class="critical-text">❌ {{issuesSummary.brokenLinks}}</span> broken links (404 pages)</p>
+        {{/if}}
+        {{#if (gt issuesSummary.imagesWithoutAlt 0)}}
+        <p><span class="warning-text">⚠️ {{issuesSummary.imagesWithoutAlt}}</span> pages with images missing alt text</p>
+        {{/if}}
+        {{#if (gt issuesSummary.thinContent 0)}}
+        <p><span class="warning-text">⚠️ {{issuesSummary.thinContent}}</span> pages with thin content</p>
+        {{/if}}
+        {{#if (gt issuesSummary.slowPages 0)}}
+        <p><span class="warning-text">⚠️ {{issuesSummary.slowPages}}</span> pages with slow load times</p>
+        {{/if}}
+        {{#unless (gt (add issuesSummary.missingTitles issuesSummary.missingDescriptions issuesSummary.duplicateTitles
+        issuesSummary.missingH1) 0)}}
+        <p class="success-text">✅ No critical issues found!</p>
+        {{/unless}}
+      </div>
+    </div>
+
+    <!-- Scores Tab -->
+    <div id="tab-scores" class="tab-content">
+      <h2>Detailed Scoring Analysis</h2>
+      {{#if siteScore}}
+      <div class="score-grid">
+        <div class="score-card highlight">
+          <h3>Overall SEO Score</h3>
+          <div class="score-value">{{formatScore siteScore.overallScore}}</div>
+          <div class="score-grade">Weighted industry-aligned score</div>
+          {{#with (scoreGrade siteScore.overallScore) as |grade|}}
+          <div class="{{scoreClass grade}}">{{grade}}</div>
+          {{/with}}
+          <div class="score-metric"><span>Average page score</span><span>{{formatScore siteScore.averagePageScore}}</span></div>
+          <div class="score-metric"><span>Top 20% pages</span><span>{{formatScore siteScore.topPagesScore}}</span></div>
+          <div class="score-metric"><span>Pages w/out critical issues</span><span>{{formatScore siteScore.percentageWithoutErrors 1}}%</span></div>
+        </div>
+        <div class="score-card">
+          <h3>Category Breakdown</h3>
+          <ul class="category-list">
+            {{#each siteScore.categoryAverages}}
+            <li class="category-item">
+              <div class="category-header">
+                <span>{{scoreCategoryLabel @key}}</span>
+                <span>
+                  {{formatScore this}}
+                  {{#if ../scoringWeights}}
+                    <span class="category-weight">{{formatWeight (lookup ../scoringWeights @key)}}</span>
+                  {{/if}}
+                </span>
+              </div>
+              <div class="category-bar">
+                <span style="width: {{this}}%;"></span>
+              </div>
+            </li>
+            {{/each}}
+          </ul>
+          {{#if scoringWeights}}
+          <p class="score-note">Weights shown reflect the normalized impact of each category.</p>
+          {{/if}}
+        </div>
+        <div class="score-card">
+          <h3>Score Distribution</h3>
+          <div class="distribution-list">
+            <div class="distribution-row">
+              <div class="distribution-header">
+                <span>Excellent (90-100)</span>
+                <strong>{{siteScore.distribution.excellent}}</strong>
+              </div>
+              <div class="distribution-bar">
+                <span style="width: {{percentage siteScore.distribution.excellent totalPages}}%;"></span>
+              </div>
+            </div>
+            <div class="distribution-row">
+              <div class="distribution-header">
+                <span>Good (80-89)</span>
+                <strong>{{siteScore.distribution.good}}</strong>
+              </div>
+              <div class="distribution-bar">
+                <span style="width: {{percentage siteScore.distribution.good totalPages}}%;"></span>
+              </div>
+            </div>
+            <div class="distribution-row">
+              <div class="distribution-header">
+                <span>Fair (70-79)</span>
+                <strong>{{siteScore.distribution.fair}}</strong>
+              </div>
+              <div class="distribution-bar">
+                <span style="width: {{percentage siteScore.distribution.fair totalPages}}%;"></span>
+              </div>
+            </div>
+            <div class="distribution-row">
+              <div class="distribution-header">
+                <span>Needs Improvement (50-69)</span>
+                <strong>{{siteScore.distribution.needsImprovement}}</strong>
+              </div>
+              <div class="distribution-bar">
+                <span style="width: {{percentage siteScore.distribution.needsImprovement totalPages}}%;"></span>
+              </div>
+            </div>
+            <div class="distribution-row">
+              <div class="distribution-header">
+                <span>Poor (30-49)</span>
+                <strong>{{siteScore.distribution.poor}}</strong>
+              </div>
+              <div class="distribution-bar">
+                <span style="width: {{percentage siteScore.distribution.poor totalPages}}%;"></span>
+              </div>
+            </div>
+            <div class="distribution-row">
+              <div class="distribution-header">
+                <span>Critical (0-29)</span>
+                <strong>{{siteScore.distribution.critical}}</strong>
+              </div>
+              <div class="distribution-bar">
+                <span style="width: {{percentage siteScore.distribution.critical totalPages}}%;"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="score-grid">
+        <div class="score-card">
+          <h3>Top Issues</h3>
+          <ul class="top-issues">
+            {{#if siteScore.topIssues.length}}
+              {{#each (sortBySeverity siteScore.topIssues)}}
+              <li>
+                <span class="severity-badge {{issueSeverity category percentageAffected}}">{{issueSeverityLabel category percentageAffected}}</span>
+                <span><strong>{{issue}}</strong> • {{affectedPages}} pages ({{formatScore percentageAffected 1}}%)</span>
+              </li>
+              {{/each}}
+            {{else}}
+              <li style="display: block;">No major issues detected 🎉</li>
+            {{/if}}
+          </ul>
+        </div>
+        <div class="score-card">
+          <h3>Best Performing Pages</h3>
+          <table class="score-table">
+            <thead>
+              <tr><th>URL</th><th>Score</th></tr>
+            </thead>
+            <tbody>
+              {{#each siteScore.bestPages}}
+              <tr>
+                <td class="truncate" title="{{url}}">{{url}}</td>
+                <td class="score-cell">{{formatScore overallScore}}</td>
+              </tr>
+              {{/each}}
+            </tbody>
+          </table>
+        </div>
+        <div class="score-card">
+          <h3>Lowest Performing Pages</h3>
+          <table class="score-table">
+            <thead>
+              <tr><th>URL</th><th>Score</th></tr>
+            </thead>
+            <tbody>
+              {{#each siteScore.worstPages}}
+              <tr>
+                <td class="truncate" title="{{url}}">{{url}}</td>
+                <td class="score-cell">{{formatScore overallScore}}</td>
+              </tr>
+              {{/each}}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      {{else}}
+      <p>No scoring data available.</p>
+      {{/if}}
+    </div>
+
+    <!-- Site Structure Tab -->
+    <div id="tab-structure" class="tab-content">
+      <h2>Site Structure</h2>
+      <p style="font-size: 12px; color: #666; margin-bottom: 16px;">Hierarchical view of all crawled pages organized by URL
+        path.</p>
+
+      <style>
+        .tree-node {
+          padding: 6px 0;
+          font-size: 12px;
+          border-bottom: 1px solid #f0f0f0;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
+
+        .tree-node:hover {
+          background: #f8f9fa;
+        }
+
+        .tree-icon {
+          font-size: 14px;
+        }
+
+        .tree-path {
+          font-family: monospace;
+          color: #0066cc;
+          font-weight: 500;
+        }
+
+        .structure-container {
+          background: white;
+          border: 1px solid #e0e0e0;
+          border-radius: 4px;
+          padding: 12px;
+          max-height: 800px;
+          overflow-y: auto;
+        }
+      </style>
+
+      <div class="structure-container">
+        {{#if (hasItems siteStructure)}}
+        {{{renderStructure siteStructure 0}}}
+        {{else}}
+        <p style="color: #999; text-align: center; padding: 20px;">No site structure available</p>
+        {{/if}}
+      </div>
+    </div>
+
+    <!-- All Pages Tab -->
+    <div id="tab-pages" class="tab-content">
+      <h2>All Pages ({{totalPages}})</h2>
+      <div class="table-controls">
+        <input type="text" class="search-box" placeholder="Search pages..." onkeyup="filterTable('pages-table', this.value)">
+        <label class="no-wrap" style="font-size: 12px; color: #666;">Rows per page:
+          <select id="pages-table-pageSize" onchange="changePageSize('pages-table', this.value)">
+            <option>25</option>
+            <option>50</option>
+            <option selected>100</option>
+            <option>250</option>
+            <option>500</option>
+          </select>
+        </label>
+        <div id="pages-table-pager" class="no-wrap" style="display: flex; gap: 6px; align-items: center;">
+          <button onclick="pagerAction('pages-table','first')">«</button>
+          <button onclick="pagerAction('pages-table','prev')">‹</button>
+          <span id="pages-table-pageInfo" style="font-size: 12px; color: #666;">Page 1</span>
+          <button onclick="pagerAction('pages-table','next')">›</button>
+          <button onclick="pagerAction('pages-table','last')">»</button>
+        </div>
+      </div>
+      <div class="table-wrapper">
+        <table id="pages-table">
+            <thead>
+              <tr>
+                <th onclick="sortTable('pages-table', 0)">URL</th>
+                <th onclick="sortTable('pages-table', 1)">Status</th>
+                <th onclick="sortTable('pages-table', 2)">Score</th>
+                <th onclick="sortTable('pages-table', 3)">Title</th>
+                <th onclick="sortTable('pages-table', 4)">Title Len</th>
+                <th onclick="sortTable('pages-table', 5)">Desc Len</th>
+                <th onclick="sortTable('pages-table', 6)">H1</th>
+                <th onclick="sortTable('pages-table', 7)">Words</th>
+                <th onclick="sortTable('pages-table', 8)">Links</th>
+                <th onclick="sortTable('pages-table', 9)">Images</th>
+                <th onclick="sortTable('pages-table', 10)">Issues</th>
+              </tr>
+            </thead>
+          <tbody id="pages-table-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Links Tab -->
+    <div id="tab-links" class="tab-content">
+      <h2>Internal Links</h2>
+      <div class="table-controls">
+        <input type="text" class="search-box" placeholder="Search internal links..."
+          onkeyup="filterTable('internal-links-table', this.value)">
+        <label class="no-wrap" style="font-size: 12px; color: #666;">Rows per page:
+          <select id="internal-links-table-pageSize" onchange="changePageSize('internal-links-table', this.value)">
+            <option>25</option>
+            <option selected>50</option>
+            <option>100</option>
+            <option>250</option>
+            <option>500</option>
+          </select>
+        </label>
+        <div id="internal-links-table-pager" class="no-wrap" style="display: flex; gap: 6px; align-items: center;">
+          <button onclick="pagerAction('internal-links-table','first')">«</button>
+          <button onclick="pagerAction('internal-links-table','prev')">‹</button>
+          <span id="internal-links-table-pageInfo" style="font-size: 12px; color: #666;">Page 1</span>
+          <button onclick="pagerAction('internal-links-table','next')">›</button>
+          <button onclick="pagerAction('internal-links-table','last')">»</button>
+        </div>
+      </div>
+      <div class="table-wrapper">
+        <table id="internal-links-table">
+          <thead>
+            <tr>
+              <th onclick="sortTable('internal-links-table', 0)">From Page</th>
+              <th onclick="sortTable('internal-links-table', 1)">To URL</th>
+              <th onclick="sortTable('internal-links-table', 2)">Anchor Text</th>
+              <th onclick="sortTable('internal-links-table', 3)">Rel</th>
+              <th onclick="sortTable('internal-links-table', 4)">Nofollow</th>
+            </tr>
+          </thead>
+          <tbody id="internal-links-table-body"></tbody>
+        </table>
+      </div>
+
+      <h2 style="margin-top: 24px;">External Links</h2>
+      <div class="table-controls">
+        <input type="text" class="search-box" placeholder="Search external links..."
+          onkeyup="filterTable('external-links-table', this.value)">
+        <label class="no-wrap" style="font-size: 12px; color: #666;">Rows per page:
+          <select id="external-links-table-pageSize" onchange="changePageSize('external-links-table', this.value)">
+            <option>25</option>
+            <option selected>50</option>
+            <option>100</option>
+            <option>250</option>
+            <option>500</option>
+          </select>
+        </label>
+        <div id="external-links-table-pager" class="no-wrap" style="display: flex; gap: 6px; align-items: center;">
+          <button onclick="pagerAction('external-links-table','first')">«</button>
+          <button onclick="pagerAction('external-links-table','prev')">‹</button>
+          <span id="external-links-table-pageInfo" style="font-size: 12px; color: #666;">Page 1</span>
+          <button onclick="pagerAction('external-links-table','next')">›</button>
+          <button onclick="pagerAction('external-links-table','last')">»</button>
+        </div>
+      </div>
+      <div class="table-wrapper">
+        <table id="external-links-table">
+          <thead>
+            <tr>
+              <th onclick="sortTable('external-links-table', 0)">From Page</th>
+              <th onclick="sortTable('external-links-table', 1)">To URL</th>
+              <th onclick="sortTable('external-links-table', 2)">Anchor Text</th>
+              <th onclick="sortTable('external-links-table', 3)">Rel</th>
+              <th onclick="sortTable('external-links-table', 4)">Nofollow</th>
+            </tr>
+          </thead>
+          <tbody id="external-links-table-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Content Tab -->
+    <div id="tab-content" class="tab-content">
+      <h2>Headings ({{allHeadingsCount}} total)</h2>
+      <div class="table-controls">
+        <input type="text" class="search-box" placeholder="Search headings..."
+          onkeyup="filterTable('headings-table', this.value)">
+        <label class="no-wrap" style="font-size: 12px; color: #666;">Rows per page:
+          <select id="headings-table-pageSize" onchange="changePageSize('headings-table', this.value)">
+            <option>25</option>
+            <option selected>50</option>
+            <option>100</option>
+            <option>250</option>
+            <option>500</option>
+          </select>
+        </label>
+        <div id="headings-table-pager" class="no-wrap" style="display: flex; gap: 6px; align-items: center;">
+          <button onclick="pagerAction('headings-table','first')">«</button>
+          <button onclick="pagerAction('headings-table','prev')">‹</button>
+          <span id="headings-table-pageInfo" style="font-size: 12px; color: #666;">Page 1</span>
+          <button onclick="pagerAction('headings-table','next')">›</button>
+          <button onclick="pagerAction('headings-table','last')">»</button>
+        </div>
+      </div>
+      <div class="table-wrapper">
+        <table id="headings-table">
+          <thead>
+            <tr>
+              <th onclick="sortTable('headings-table', 0)">Page</th>
+              <th onclick="sortTable('headings-table', 1)">Level</th>
+              <th onclick="sortTable('headings-table', 2)">Heading Text</th>
+            </tr>
+          </thead>
+          <tbody id="headings-table-body"></tbody>
+        </table>
+      </div>
+
+      <h2 style="margin-top: 24px;">Images ({{allImagesCount}} total)</h2>
+      <div class="table-controls">
+        <input type="text" class="search-box" placeholder="Search images..."
+          onkeyup="filterTable('images-table', this.value)">
+        <label class="no-wrap" style="font-size: 12px; color: #666;">Rows per page:
+          <select id="images-table-pageSize" onchange="changePageSize('images-table', this.value)">
+            <option>25</option>
+            <option selected>50</option>
+            <option>100</option>
+            <option>250</option>
+            <option>500</option>
+          </select>
+        </label>
+        <div id="images-table-pager" class="no-wrap" style="display: flex; gap: 6px; align-items: center;">
+          <button onclick="pagerAction('images-table','first')">«</button>
+          <button onclick="pagerAction('images-table','prev')">‹</button>
+          <span id="images-table-pageInfo" style="font-size: 12px; color: #666;">Page 1</span>
+          <button onclick="pagerAction('images-table','next')">›</button>
+          <button onclick="pagerAction('images-table','last')">»</button>
+        </div>
+      </div>
+      <div class="table-wrapper">
+        <table id="images-table">
+          <thead>
+            <tr>
+              <th onclick="sortTable('images-table', 0)">Page</th>
+              <th onclick="sortTable('images-table', 1)">Image URL</th>
+              <th onclick="sortTable('images-table', 2)">Alt Text</th>
+              <th onclick="sortTable('images-table', 3)">Has Alt</th>
+            </tr>
+          </thead>
+          <tbody id="images-table-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Performance Tab -->
+    <div id="tab-performance" class="tab-content">
+      <h2>Performance Overview</h2>
+
+      <!-- Performance Stats -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-label">Fast Pages (&lt;1s)</div>
+          <div class="stat-value">{{fastPages}}</div>
+        </div>
+        <div class="stat-card {{#if (gt moderatePages 0)}}warning{{/if}}">
+          <div class="stat-label">Moderate (1-3s)</div>
+          <div class="stat-value">{{moderatePages}}</div>
+        </div>
+        <div class="stat-card {{#if (gt slowPages 0)}}critical{{/if}}">
+          <div class="stat-label">Slow Pages (&gt;3s)</div>
+          <div class="stat-value">{{slowPages}}</div>
+        </div>
+        <div class="stat-card {{#if (gt issuesSummary.redirectChains 0)}}warning{{/if}}">
+          <div class="stat-label">Pages with Redirects</div>
+          <div class="stat-value">{{issuesSummary.redirectChains}}</div>
+        </div>
+      </div>
+
+      <!-- Performance Visualizations -->
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 16px; margin: 16px 0;">
+        <!-- Response Time Distribution Chart -->
+        <div style="background: white; padding: 16px; border-radius: 4px; border: 1px solid #e0e0e0;">
+          <h3 style="margin: 0 0 12px 0; font-size: 14px;">Response Time Distribution</h3>
+          <div style="display: flex; flex-direction: column; gap: 10px;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="width: 120px; font-size: 12px;">Fast (&lt;1s)</span>
+              <div style="flex: 1; background: #f0f0f0; height: 24px; border-radius: 2px; overflow: hidden;">
+                <div style="background: #28a745; height: 100%; width: {{percentage fastPages totalPages}}%;"></div>
+              </div>
+              <span style="font-weight: 600; font-size: 12px; min-width: 40px; text-align: right;">{{fastPages}}</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="width: 120px; font-size: 12px;">Moderate (1-3s)</span>
+              <div style="flex: 1; background: #f0f0f0; height: 24px; border-radius: 2px; overflow: hidden;">
+                <div style="background: #ffc107; height: 100%; width: {{percentage moderatePages totalPages}}%;"></div>
+              </div>
+              <span style="font-weight: 600; font-size: 12px; min-width: 40px; text-align: right;">{{moderatePages}}</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="width: 120px; font-size: 12px;">Slow (&gt;3s)</span>
+              <div style="flex: 1; background: #f0f0f0; height: 24px; border-radius: 2px; overflow: hidden;">
+                <div style="background: #dc3545; height: 100%; width: {{percentage slowPages totalPages}}%;"></div>
+              </div>
+              <span style="font-weight: 600; font-size: 12px; min-width: 40px; text-align: right;">{{slowPages}}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Content Size Distribution -->
+        <div style="background: white; padding: 16px; border-radius: 4px; border: 1px solid #e0e0e0;">
+          <h3 style="margin: 0 0 12px 0; font-size: 14px;">Content Quality Distribution</h3>
+          <div style="display: flex; flex-direction: column; gap: 10px;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="width: 120px; font-size: 12px;">Good (&gt;300w)</span>
+              <div style="flex: 1; background: #f0f0f0; height: 24px; border-radius: 2px; overflow: hidden;">
+                <div style="background: #28a745; height: 100%; width: {{percentage goodContentPages totalPages}}%;"></div>
+              </div>
+              <span
+                style="font-weight: 600; font-size: 12px; min-width: 40px; text-align: right;">{{goodContentPages}}</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="width: 120px; font-size: 12px;">Thin (&lt;300w)</span>
+              <div style="flex: 1; background: #f0f0f0; height: 24px; border-radius: 2px; overflow: hidden;">
+                <div style="background: #ffc107; height: 100%; width: {{percentage thinContentPages totalPages}}%;"></div>
+              </div>
+              <span
+                style="font-weight: 600; font-size: 12px; min-width: 40px; text-align: right;">{{thinContentPages}}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <h2 style="margin-top: 24px;">Response Times & Metrics</h2>
+      <div class="table-controls">
+        <input type="text" class="search-box" placeholder="Search pages..."
+          onkeyup="filterTable('performance-table', this.value)">
+        <label class="no-wrap" style="font-size: 12px; color: #666;">Rows per page:
+          <select id="performance-table-pageSize" onchange="changePageSize('performance-table', this.value)">
+            <option>25</option>
+            <option selected>100</option>
+            <option>250</option>
+            <option>500</option>
+          </select>
+        </label>
+        <div id="performance-table-pager" class="no-wrap" style="display: flex; gap: 6px; align-items: center;">
+          <button onclick="pagerAction('performance-table','first')">«</button>
+          <button onclick="pagerAction('performance-table','prev')">‹</button>
+          <span id="performance-table-pageInfo" style="font-size: 12px; color: #666;">Page 1</span>
+          <button onclick="pagerAction('performance-table','next')">›</button>
+          <button onclick="pagerAction('performance-table','last')">»</button>
+        </div>
+      </div>
+      <div class="table-wrapper">
+        <table id="performance-table">
+          <thead>
+            <tr>
+              <th onclick="sortTable('performance-table', 0)">URL</th>
+              <th onclick="sortTable('performance-table', 1)">Response (ms)</th>
+              <th onclick="sortTable('performance-table', 2)">Redirects</th>
+              <th onclick="sortTable('performance-table', 3)">Word Count</th>
+              <th onclick="sortTable('performance-table', 4)">HTML Size</th>
+              <th onclick="sortTable('performance-table', 5)">Links</th>
+              <th onclick="sortTable('performance-table', 6)">Images</th>
+            </tr>
+          </thead>
+          <tbody id="performance-table-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- External Scripts Tab -->
+    <div id="tab-scripts" class="tab-content">
+      <h2>Scripts ({{externalScripts.length}} unique)</h2>
+      <p style="font-size: 12px; color: #666; margin-bottom: 16px;">All JavaScript files loaded via &lt;script src="..."&gt;
+        tags in the static HTML.</p>
+
+      {{#if externalScripts.length}}
+      <div class="table-controls">
+        <input type="text" class="search-box" placeholder="Search scripts..."
+          onkeyup="filterTable('scripts-table', this.value)">
+      </div>
+      <div class="table-wrapper">
+        <table id="scripts-table">
+          <thead>
+            <tr>
+              <th onclick="sortTable('scripts-table', 0)">Script URL</th>
+              <th onclick="sortTable('scripts-table', 1)">Source</th>
+              <th onclick="sortTable('scripts-table', 2)">Pages</th>
+              <th onclick="sortTable('scripts-table', 3)">Async</th>
+              <th onclick="sortTable('scripts-table', 4)">Defer</th>
+              <th onclick="sortTable('scripts-table', 5)">Type</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#each externalScripts}}
+            <tr>
+              <td class="url-cell" title="{{this.src}}"><a href="{{this.src}}" class="url-link" target="_blank"
+                  rel="noopener">{{truncateUrl this.src 80}}</a></td>
+              <td class="no-wrap">{{#if this.isExternal}}<span class="badge badge-warning">Third-Party</span>{{else}}<span
+                  class="badge badge-success">Same-Domain</span>{{/if}}</td>
+              <td class="no-wrap"><span class="badge badge-info">{{this.count}}</span></td>
+              <td class="no-wrap">{{#if this.async}}<span class="badge badge-success">Yes</span>{{else}}<span
+                  class="badge badge-warning">No</span>{{/if}}</td>
+              <td class="no-wrap">{{#if this.defer}}<span class="badge badge-success">Yes</span>{{else}}<span
+                  class="badge badge-warning">No</span>{{/if}}</td>
+              <td class="no-wrap">{{#if this.type}}{{this.type}}{{else}}<span style="color: #999;">default</span>{{/if}}</td>
+            </tr>
+            {{/each}}
+          </tbody>
+        </table>
+      </div>
+
+      <h2 style="margin-top: 24px;">Script Details by Page</h2>
+      <div class="table-controls">
+        <input type="text" class="search-box" placeholder="Search..."
+          onkeyup="filterTable('scripts-by-page-table', this.value)">
+      </div>
+      <div class="table-wrapper">
+        <table id="scripts-by-page-table">
+          <thead>
+            <tr>
+              <th onclick="sortTable('scripts-by-page-table', 0)">Page</th>
+              <th onclick="sortTable('scripts-by-page-table', 1)">Script Count</th>
+              <th onclick="sortTable('scripts-by-page-table', 2)">Scripts</th>
+            </tr>
+          </thead>
+          <tbody id="scripts-by-page-table-body"></tbody>
+        </table>
+      </div>
+      {{else}}
+      <div style="padding: 40px; text-align: center; background: #f8f9fa; border-radius: 8px; margin: 20px 0;">
+        <p style="font-size: 16px; color: #666; margin: 0;">ℹ️ <strong>No scripts with src attributes found</strong></p>
+        <p style="font-size: 14px; color: #666; margin-top: 12px;">This site may use only inline JavaScript or load scripts
+          dynamically.</p>
+        <p style="font-size: 13px; color: #999; margin-top: 8px; max-width: 600px; margin-left: auto; margin-right: auto;">
+          <strong>Note:</strong> This crawler analyzes static HTML only. If this is a client-side rendered app,
+          additional scripts may be loaded dynamically by JavaScript after page load.
+          Check your browser's DevTools Network tab to see all runtime-loaded scripts.
+        </p>
+      </div>
+      {{/if}}
+    </div>
+
+    <!-- Sitemap Tab -->
+    <div id="tab-sitemap" class="tab-content">
+      <h2>Sitemap Analysis</h2>
+
+      {{#if sitemapInfo}}
+      <!-- Sitemap Stats -->
+      <div class="stats-grid" style="margin-bottom: 20px;">
+        <div class="stat-card">
+          <div class="stat-label">URLs in Sitemap</div>
+          <div class="stat-value">{{sitemapInfo.sitemapUrlCount}}</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">URLs Crawled</div>
+          <div class="stat-value">{{totalPages}}</div>
+        </div>
+        <div class="stat-card {{#if sitemapInfo.urlsNotInSitemap.length}}warning{{/if}}">
+          <div class="stat-label">Not in Sitemap</div>
+          <div class="stat-value">{{sitemapInfo.urlsNotInSitemap.length}}</div>
+          <div class="stat-detail">Crawled but missing from sitemap</div>
+        </div>
+        <div class="stat-card {{#if sitemapInfo.orphanUrls.length}}warning{{/if}}">
+          <div class="stat-label">Orphan URLs</div>
+          <div class="stat-value">{{sitemapInfo.orphanUrls.length}}</div>
+          <div class="stat-detail">In sitemap but not crawled</div>
+        </div>
+        <div class="stat-card {{#if sitemapInfo.nonIndexableInSitemap.length}}critical{{/if}}">
+          <div class="stat-label">Non-Indexable in Sitemap</div>
+          <div class="stat-value">{{sitemapInfo.nonIndexableInSitemap.length}}</div>
+          <div class="stat-detail">Noindex or error pages in sitemap</div>
+        </div>
+      </div>
+
+      <!-- Sitemap Source -->
+      <div style="background: #f8f9fa; padding: 12px; border-radius: 4px; margin-bottom: 20px;">
+        <strong>Sitemap Location{{#if (gt sitemapInfo.sitemapUrls.length 1)}}s{{/if}}:</strong>
+        {{#each sitemapInfo.sitemapUrls}}
+        <div style="margin-top: 4px; font-family: monospace; font-size: 11px;">
+          <a href="{{this}}" target="_blank" rel="noopener" style="color: #0066cc;">{{this}}</a>
+        </div>
+        {{/each}}
+      </div>
+
+      {{#if sitemapInfo.urlsNotInSitemap.length}}
+      <!-- URLs Not in Sitemap -->
+      <h3 style="color: #ffc107;">⚠️ Crawled URLs Not in Sitemap ({{sitemapInfo.urlsNotInSitemap.length}})</h3>
+      <p style="font-size: 12px; color: #666; margin-bottom: 16px;">These pages were crawled but are missing from your
+        sitemap. Consider adding them.</p>
+      <div class="table-controls">
+        <input type="text" class="search-box" placeholder="Search URLs..."
+          onkeyup="filterTable('not-in-sitemap-table', this.value)">
+        <label class="no-wrap" style="font-size: 12px; color: #666;">Rows per page:
+          <select id="not-in-sitemap-table-pageSize" onchange="changePageSize('not-in-sitemap-table', this.value)">
+            <option>25</option>
+            <option selected>100</option>
+            <option>250</option>
+            <option>500</option>
+          </select>
+        </label>
+        <div id="not-in-sitemap-table-pager" class="no-wrap" style="display: flex; gap: 6px; align-items: center;">
+          <button onclick="pagerAction('not-in-sitemap-table','first')">«</button>
+          <button onclick="pagerAction('not-in-sitemap-table','prev')">‹</button>
+          <span id="not-in-sitemap-table-pageInfo" style="font-size: 12px; color: #666;">Page 1</span>
+          <button onclick="pagerAction('not-in-sitemap-table','next')">›</button>
+          <button onclick="pagerAction('not-in-sitemap-table','last')">»</button>
+        </div>
+      </div>
+      <div class="table-wrapper" style="margin-bottom: 24px;">
+        <table id="not-in-sitemap-table">
+          <thead>
+            <tr>
+              <th onclick="sortTable('not-in-sitemap-table', 0)">URL</th>
+              <th onclick="sortTable('not-in-sitemap-table', 1)">Status</th>
+              <th onclick="sortTable('not-in-sitemap-table', 2)">Indexable</th>
+            </tr>
+          </thead>
+          <tbody id="not-in-sitemap-table-body"></tbody>
+        </table>
+      </div>
+      {{/if}}
+
+      {{#if sitemapInfo.orphanUrls.length}}
+      <!-- Orphan URLs (in sitemap but not crawled) -->
+      <h3 style="color: #ffc107;">⚠️ Orphan URLs in Sitemap ({{sitemapInfo.orphanUrls.length}})</h3>
+      <p style="font-size: 12px; color: #666; margin-bottom: 16px;">These URLs are in your sitemap but were not discovered
+        during the crawl. They may be orphaned (no internal links).</p>
+      <div class="table-controls">
+        <input type="text" class="search-box" placeholder="Search URLs..."
+          onkeyup="filterTable('orphan-urls-table', this.value)">
+        <label class="no-wrap" style="font-size: 12px; color: #666;">Rows per page:
+          <select id="orphan-urls-table-pageSize" onchange="changePageSize('orphan-urls-table', this.value)">
+            <option>25</option>
+            <option selected>100</option>
+            <option>250</option>
+            <option>500</option>
+          </select>
+        </label>
+        <div id="orphan-urls-table-pager" class="no-wrap" style="display: flex; gap: 6px; align-items: center;">
+          <button onclick="pagerAction('orphan-urls-table','first')">«</button>
+          <button onclick="pagerAction('orphan-urls-table','prev')">‹</button>
+          <span id="orphan-urls-table-pageInfo" style="font-size: 12px; color: #666;">Page 1</span>
+          <button onclick="pagerAction('orphan-urls-table','next')">›</button>
+          <button onclick="pagerAction('orphan-urls-table','last')">»</button>
+        </div>
+      </div>
+      <div class="table-wrapper" style="margin-bottom: 24px;">
+        <table id="orphan-urls-table">
+          <thead>
+            <tr>
+              <th onclick="sortTable('orphan-urls-table', 0)">URL</th>
+            </tr>
+          </thead>
+          <tbody id="orphan-urls-table-body"></tbody>
+        </table>
+      </div>
+      {{/if}}
+
+      {{#if sitemapInfo.nonIndexableInSitemap.length}}
+      <!-- Non-indexable URLs in Sitemap -->
+      <h3 style="color: #dc3545;">❌ Non-Indexable URLs in Sitemap ({{sitemapInfo.nonIndexableInSitemap.length}})</h3>
+      <p style="font-size: 12px; color: #666; margin-bottom: 16px;">These URLs are in your sitemap but shouldn't be (noindex,
+        404, or error status). Remove them from the sitemap.</p>
+      <div class="table-controls">
+        <input type="text" class="search-box" placeholder="Search URLs..."
+          onkeyup="filterTable('non-indexable-sitemap-table', this.value)">
+        <label class="no-wrap" style="font-size: 12px; color: #666;">Rows per page:
+          <select id="non-indexable-sitemap-table-pageSize"
+            onchange="changePageSize('non-indexable-sitemap-table', this.value)">
+            <option>25</option>
+            <option selected>100</option>
+            <option>250</option>
+            <option>500</option>
+          </select>
+        </label>
+        <div id="non-indexable-sitemap-table-pager" class="no-wrap" style="display: flex; gap: 6px; align-items: center;">
+          <button onclick="pagerAction('non-indexable-sitemap-table','first')">«</button>
+          <button onclick="pagerAction('non-indexable-sitemap-table','prev')">‹</button>
+          <span id="non-indexable-sitemap-table-pageInfo" style="font-size: 12px; color: #666;">Page 1</span>
+          <button onclick="pagerAction('non-indexable-sitemap-table','next')">›</button>
+          <button onclick="pagerAction('non-indexable-sitemap-table','last')">»</button>
+        </div>
+      </div>
+      <div class="table-wrapper">
+        <table id="non-indexable-sitemap-table">
+          <thead>
+            <tr>
+              <th onclick="sortTable('non-indexable-sitemap-table', 0)">URL</th>
+              <th onclick="sortTable('non-indexable-sitemap-table', 1)">Issue</th>
+            </tr>
+          </thead>
+          <tbody id="non-indexable-sitemap-table-body"></tbody>
+        </table>
+      </div>
+      {{/if}}
+
+      {{else}}
+      <div style="padding: 40px; text-align: center; color: #999;">
+        <h3 style="color: #666; margin-bottom: 12px;">No Sitemap Found</h3>
+        <p>Could not detect a sitemap at common locations (/sitemap.xml, from robots.txt).</p>
+        <p style="margin-top: 8px; font-size: 12px;">Use <code>--sitemap-url</code> to specify a custom sitemap location.</p>
+      </div>
+      {{/if}}
+    </div>
+
+    <!-- 404 Pages Tab -->
+    <div id="tab-404s" class="tab-content">
+      <h2>404 Pages ({{issuesSummary.brokenLinks}})</h2>
+
+      <div class="stats-grid" style="margin-bottom: 20px;">
+        <div class="stat-card critical">
+          <div class="stat-label">Total 404 Pages</div>
+          <div class="stat-value">{{issuesSummary.brokenLinks}}</div>
+        </div>
+      </div>
+
+      <p style="font-size: 12px; color: #666; margin-bottom: 16px;">These pages returned a 404 Not Found status. Use the
+        referrers to identify which pages need to be fixed.</p>
+      <div class="table-controls">
+        <input type="text" class="search-box" placeholder="Search 404 pages..."
+          onkeyup="filterTable('pages404-table', this.value)">
+        <label class="no-wrap" style="font-size: 12px; color: #666;">Rows per page:
+          <select id="pages404-table-pageSize" onchange="changePageSize('pages404-table', this.value)">
+            <option>25</option>
+            <option selected>100</option>
+            <option>250</option>
+            <option>500</option>
+          </select>
+        </label>
+        <div id="pages404-table-pager" class="no-wrap" style="display: flex; gap: 6px; align-items: center;">
+          <button onclick="pagerAction('pages404-table','first')">«</button>
+          <button onclick="pagerAction('pages404-table','prev')">‹</button>
+          <span id="pages404-table-pageInfo" style="font-size: 12px; color: #666;">Page 1</span>
+          <button onclick="pagerAction('pages404-table','next')">›</button>
+          <button onclick="pagerAction('pages404-table','last')">»</button>
+        </div>
+      </div>
+      <div class="table-wrapper">
+        <table id="pages404-table">
+          <thead>
+            <tr>
+              <th onclick="sortTable('pages404-table', 0)">404 URL</th>
+              <th onclick="sortTable('pages404-table', 1)">Referrers</th>
+              <th onclick="sortTable('pages404-table', 2)">Referring Pages</th>
+            </tr>
+          </thead>
+          <tbody id="pages404-table-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Issues Tab -->
+    <div id="tab-issues" class="tab-content">
+      <h2>Issues</h2>
+
+      <!-- Sub-tabs for issues view -->
+      <div class="subtabs" style="display:flex; gap:8px; margin:6px 0 12px 0;">
+        <button class="tab active" data-subtab="issues-list" onclick="window.toggleIssuesView && toggleIssuesView('list')">All</button>
+        <button class="tab" data-subtab="issues-types" onclick="window.toggleIssuesView && toggleIssuesView('types')">By Type</button>
+      </div>
+
+      <div id="issues-list-view">
+        <!-- Issue stats by severity -->
+        <div class="stats-grid" style="margin-bottom: 12px;">
+          <div class="stat-card critical">
+            <div class="stat-label">🔴 High Severity</div>
+            <div class="stat-value">{{totalHighSeverity}}</div>
+            <div class="stat-detail">Critical issues requiring immediate attention</div>
+          </div>
+          <div class="stat-card warning">
+            <div class="stat-label">🟡 Medium Severity</div>
+            <div class="stat-value">{{totalMediumSeverity}}</div>
+            <div class="stat-detail">Important issues to address soon</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">🔵 Low Severity</div>
+            <div class="stat-value">{{totalLowSeverity}}</div>
+            <div class="stat-detail">Minor improvements and optimizations</div>
+          </div>
+        </div>
+
+        <!-- Unified Issues Table with Severity and Type Filters -->
+        <div class="table-controls">
+          <label class="no-wrap" style="font-size: 12px; color: #666; margin-right: 10px;">Filter by severity:
+            <select id="issues-severity-filter" onchange="filterIssuesBySeverity(this.value)">
+              <option value="all">All Severities</option>
+              <option value="high" selected>High Only</option>
+              <option value="medium">Medium Only</option>
+              <option value="low">Low Only</option>
+            </select>
+          </label>
+          <label class="no-wrap" style="font-size: 12px; color: #666; margin-right: 10px;">Filter by issue:
+            <select id="issues-type-filter"
+              onchange="window.__SEO_ISSUE_TYPE_FILTER_HOOK__ && __SEO_ISSUE_TYPE_FILTER_HOOK__(this.value)">
+              <option value="all" selected>All Issue Types</option>
+              <!-- dynamic options populated by report.js -->
+            </select>
+          </label>
+          <input type="text" class="search-box" placeholder="Search issues..."
+            onkeyup="filterTable('issues-table', this.value)">
+          <label class="no-wrap" style="font-size: 12px; color: #666;">Rows per page:
+            <select id="issues-table-pageSize" onchange="changePageSize('issues-table', this.value)">
+              <option>25</option>
+              <option>50</option>
+              <option selected>100</option>
+              <option>250</option>
+              <option>500</option>
+            </select>
+          </label>
+          <div id="issues-table-pager" class="no-wrap" style="display: flex; gap: 6px; align-items: center;">
+            <button onclick="pagerAction('issues-table','first')">«</button>
+            <button onclick="pagerAction('issues-table','prev')">‹</button>
+            <span id="issues-table-pageInfo" style="font-size: 12px; color: #666;">Page 1</span>
+            <button onclick="pagerAction('issues-table','next')">›</button>
+            <button onclick="pagerAction('issues-table','last')">»</button>
+          </div>
+        </div>
+
+        <!-- Live totals for current filters -->
+        <div id="issues-filter-summary" style="font-size:12px;color:#666;margin:4px 0 8px 0;">
+          <!-- populated by report.js -->
+        </div>
+
+        <div class="table-wrapper">
+          <table id="issues-table">
+            <thead>
+              <tr>
+                <th onclick="sortTable('issues-table', 0)">Page</th>
+                <th onclick="sortTable('issues-table', 1)">Severity</th>
+                <th onclick="sortTable('issues-table', 2)">Issue</th>
+              </tr>
+            </thead>
+            <tbody id="issues-table-body"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Issues by Type view -->
+      <div id="issues-by-type-view" style="display:none;">
+        <div class="table-wrapper">
+          <table id="issues-type-table">
+            <thead>
+              <tr>
+                <th onclick="sortTable('issues-type-table', 0)">Issue Type</th>
+                <th onclick="sortTable('issues-type-table', 1)">Total</th>
+                <th onclick="sortTable('issues-type-table', 2)">High</th>
+                <th onclick="sortTable('issues-type-table', 3)">Medium</th>
+                <th onclick="sortTable('issues-type-table', 4)">Low</th>
+              </tr>
+            </thead>
+            <tbody id="issues-type-table-body"></tbody>
+          </table>
+        </div>
+        <div style="font-size:12px;color:#666;margin-top:8px;">Click a row to view affected pages. </div>
+      </div>
+    </div>
+
+    <div id="tab-api" class="tab-content">
+      <h2>JSON API</h2>
+      <p style="font-size: 12px; color: #666; margin-bottom: 16px;">All report data is exported as static JSON files for
+        programmatic use.</p>
+
+      <div class="stats-grid" style="margin-bottom: 12px;">
+        <div class="stat-card">
+          <div class="stat-label">Directory</div>
+          <div class="stat-value">json/</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Pages</div>
+          <div class="stat-value">json/pages/</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Issues</div>
+          <div class="stat-value">json/issues/</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Index</div>
+          <div class="stat-value">json/url-index.json</div>
+        </div>
+      </div>
+
+      <h3>Endpoints</h3>
+      <div
+        style="background: #f8f9fa; padding: 12px; border-radius: 4px; border: 1px solid #e0e0e0; font-family: monospace; font-size: 12px;">
+        <div><strong>Per Page:</strong> json/pages/{filename}.json</div>
+        <div><strong>Per Page Issues:</strong> json/issues/{filename}.json</div>
+        <div><strong>All Pages:</strong> json/all-pages.json</div>
+        <div><strong>All Issues:</strong> json/all-issues.json</div>
+        <div><strong>Issues Summary:</strong> json/issues-summary.json</div>
+        <div><strong>Links:</strong> json/links.json</div>
+        <div><strong>Headings:</strong> json/headings.json</div>
+        <div><strong>Images:</strong> json/images.json</div>
+        <div><strong>Performance:</strong> json/performance.json</div>
+        <div><strong>External Scripts:</strong> json/external-scripts.json</div>
+        <div><strong>404 Pages:</strong> json/404-pages.json</div>
+        <div><strong>Sitemap Info:</strong> json/sitemap-info.json</div>
+        <div><strong>Site Structure:</strong> json/site-structure.json</div>
+        <div><strong>URL Index:</strong> json/url-index.json</div>
+      </div>
+
+      <h3 style="margin-top: 16px;">Usage</h3>
+      <div style="background: #f8f9fa; padding: 12px; border-radius: 4px; border: 1px solid #e0e0e0;">
+        <div style="font-family: monospace; font-size: 12px;">
+          <div><em>Shell</em></div>
+          <pre style="white-space: pre-wrap; margin-top: 8px;">curl ./json/all-issues.json | jq '.'
+curl ./json/pages/index.json | jq '.title, .issuesCount'</pre>
+          <div style="margin-top: 10px;"><em>JavaScript</em></div>
+          <pre style="white-space: pre-wrap; margin-top: 8px;">fetch('./json/all-pages.json')
+  .then(r => r.json())
+  .then(data => console.log(data.pages.length));</pre>
+        </div>
+        <p style="font-size: 12px; color: #666; margin-top: 8px;">Use <code>json/url-index.json</code> to map full URLs to
+          filenames in <code>json/pages/</code>.</p>
+      </div>
+    </div>
+  </div>
+
+
+
+  {{{manifestScript}}}
+  <script src="report.js" defer></script>
+
+  <script>
+    // Tab switching
+    function showTab(tabName) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
+      var tabEl = document.getElementById('tab-' + tabName);
+      if (tabEl) tabEl.classList.add('active');
+      var btn = document.querySelector('.tab[data-tab="' + tabName + '"]');
+      if (btn) btn.classList.add('active');
+      if (window.__SEO_TAB_HOOK__) {
+        try { window.__SEO_TAB_HOOK__(tabName); } catch (e) { }
+      }
+    }
+
+    // Table sorting with proper type detection
+    let sortStates = {};
+
+    function sortTable(tableId, columnIndex) {
+      if (window.__SEO_SORT_HOOK__) {
+        const handled = window.__SEO_SORT_HOOK__(tableId, columnIndex);
+        if (handled) return;
+      }
+      const table = document.getElementById(tableId);
+      const tbody = table.querySelector('tbody');
+      const rows = Array.from(tbody.querySelectorAll('tr')).filter(row => row.style.display !== 'none');
+
+      const key = tableId + '-' + columnIndex;
+      if (!sortStates[key]) sortStates[key] = 'none';
+
+      sortStates[key] = sortStates[key] === 'asc' ? 'desc' : 'asc';
+      const direction = sortStates[key];
+
+      // Update header indicators
+      const headers = table.querySelectorAll('th');
+      headers.forEach((h, i) => {
+        h.classList.remove('sort-asc', 'sort-desc');
+        if (i === columnIndex) h.classList.add('sort-' + direction);
+      });
+
+      // Sort rows
+      rows.sort((a, b) => {
+        let aText = a.cells[columnIndex].textContent.trim();
+        let bText = b.cells[columnIndex].textContent.trim();
+
+        // Try to parse as numbers
+        const aNum = parseFloat(aText.replace(/[^0-9.-]/g, ''));
+        const bNum = parseFloat(bText.replace(/[^0-9.-]/g, ''));
+
+        if (!isNaN(aNum) && !isNaN(bNum)) {
+          return direction === 'asc' ? aNum - bNum : bNum - aNum;
+        }
+
+        // String comparison
+        return direction === 'asc' ? aText.localeCompare(bText) : bText.localeCompare(aText);
+      });
+
+      // Re-append all rows (including hidden ones)
+      const allRows = Array.from(tbody.querySelectorAll('tr'));
+      allRows.forEach(row => row.remove());
+      rows.forEach(row => tbody.appendChild(row));
+      allRows.filter(row => !rows.includes(row)).forEach(row => tbody.appendChild(row));
+    }
+
+    // Table filtering
+    function filterTable(tableId, searchTerm) {
+      if (window.__SEO_FILTER_HOOK__) {
+        const handled = window.__SEO_FILTER_HOOK__(tableId, searchTerm);
+        if (handled) return;
+      }
+      const table = document.getElementById(tableId);
+      const tbody = table.querySelector('tbody');
+      const rows = tbody.querySelectorAll('tr');
+      const term = searchTerm.toLowerCase();
+
+      rows.forEach(row => {
+        const text = row.textContent.toLowerCase();
+        row.style.display = text.includes(term) ? '' : 'none';
+      });
+    }
+
+    function changePageSize(tableId, value) {
+      if (window.__SEO_PAGESIZE_HOOK__) {
+        window.__SEO_PAGESIZE_HOOK__(tableId, parseInt(value, 10) || 25);
+      }
+    }
+
+    function pagerAction(tableId, action) {
+      if (window.__SEO_PAGER_HOOK__) {
+        window.__SEO_PAGER_HOOK__(tableId, action);
+      }
+    }
+
+    // Initialize chunked tables when report.js is loaded
+    window.addEventListener('DOMContentLoaded', function () {
+      if (window.initReport) {
+        window.initReport();
+      }
+    });
+  </script>
+</body>
+
+</html>
