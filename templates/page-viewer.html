@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Page Details - SEO Report</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ctext y='14' font-size='12'%3E📄%3C/text%3E%3C/svg%3E">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+      font-size: 14px;
+      line-height: 1.6;
+      color: #1a1a1a;
+      background: #f8f9fa;
+    }
+    
+    .header {
+      background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+      color: white;
+      padding: 15px 20px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .header h1 {
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+    
+    .header .url {
+      font-size: 13px;
+      opacity: 0.9;
+      word-break: break-all;
+    }
+    
+    .back-link {
+      display: inline-block;
+      color: white;
+      text-decoration: none;
+      margin-bottom: 10px;
+      font-size: 13px;
+    }
+    
+    .back-link:hover {
+      text-decoration: underline;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 20px auto;
+      padding: 0 20px;
+    }
+    
+    .card {
+      background: white;
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+    
+    .card h2 {
+      font-size: 18px;
+      margin-bottom: 15px;
+      color: #2c3e50;
+      border-bottom: 2px solid #e0e0e0;
+      padding-bottom: 8px;
+    }
+    
+    .meta-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+    
+    .meta-item {
+      padding: 12px;
+      background: #f8f9fa;
+      border-radius: 4px;
+    }
+    
+    .meta-label {
+      font-weight: 600;
+      color: #555;
+      font-size: 12px;
+      text-transform: uppercase;
+      margin-bottom: 5px;
+    }
+    
+    .meta-value {
+      color: #1a1a1a;
+      word-break: break-word;
+    }
+    
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+    
+    .badge-success {
+      background: #d4edda;
+      color: #155724;
+    }
+    
+    .badge-error {
+      background: #f8d7da;
+      color: #721c24;
+    }
+    
+    .badge-warning {
+      background: #fff3cd;
+      color: #856404;
+    }
+    
+    .badge-info {
+      background: #d1ecf1;
+      color: #0c5460;
+    }
+    
+    .table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      table-layout: fixed;
+    }
+    
+    .table th {
+      background: #f8f9fa;
+      padding: 10px;
+      text-align: left;
+      font-weight: 600;
+      font-size: 12px;
+      border-bottom: 2px solid #dee2e6;
+    }
+    
+    .table td {
+      padding: 10px;
+      border-bottom: 1px solid #dee2e6;
+      font-size: 13px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    
+    .table tr:hover {
+      background: #f8f9fa;
+    }
+    
+    .issues-list {
+      list-style: none;
+    }
+    
+    .issue-item {
+      padding: 12px;
+      margin-bottom: 8px;
+      border-radius: 4px;
+      border-left: 4px solid;
+    }
+    
+    .issue-item.high {
+      border-color: #dc3545;
+      background: #f8d7da;
+    }
+    
+    .issue-item.medium {
+      border-color: #ffc107;
+      background: #fff3cd;
+    }
+    
+    .issue-item.low {
+      border-color: #17a2b8;
+      background: #d1ecf1;
+    }
+    
+    .loading {
+      text-align: center;
+      padding: 40px;
+      color: #666;
+    }
+    
+    .error {
+      background: #f8d7da;
+      color: #721c24;
+      padding: 15px;
+      border-radius: 4px;
+      margin: 20px 0;
+    }
+    
+    .json-code {
+      background: #f4f4f4;
+      padding: 15px;
+      border-radius: 4px;
+      overflow-x: auto;
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    /* Utility styles similar to summary page */
+    .truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .no-wrap { white-space: nowrap; }
+    .url-cell { max-width: 520px; }
+
+    /* Info icon for suggestions */
+    .info-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 16px; height: 16px;
+      border-radius: 50%;
+      border: 1px solid #888;
+      color: #555;
+      font-size: 10px;
+      margin-left: 6px;
+      cursor: help;
+      background: #fff;
+    }
+
+    /* Overview stats */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 10px;
+      margin: 12px 0;
+    }
+    .stat-card { background: #f8f9fa; padding: 12px; border-radius: 4px; border-left: 3px solid #2c3e50; }
+    .stat-card.critical { border-left-color: #dc3545; background: #fff5f5; }
+    .stat-card.warning { border-left-color: #ffc107; background: #fffef5; }
+    .stat-label { font-size: 11px; color: #666; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.3px; }
+    .stat-value { font-size: 20px; font-weight: 700; color: #1a1a1a; line-height: 1; }
+    
+    /* Mobile Responsive Styles */
+    @media (max-width: 768px) {
+      .header {
+        padding: 12px 15px;
+      }
+      
+      .header h1 {
+        font-size: 18px;
+      }
+      
+      .back-link {
+        font-size: 12px;
+        margin-bottom: 8px;
+      }
+      
+      .container {
+        padding: 0 15px;
+        margin: 15px auto;
+      }
+      
+      .card {
+        padding: 15px;
+        margin-bottom: 15px;
+      }
+      
+      .card h2 {
+        font-size: 16px;
+      }
+      
+      .meta-grid {
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 12px;
+      }
+      
+      .stats-grid {
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+        gap: 8px;
+      }
+      
+      .stat-value {
+        font-size: 18px;
+      }
+      
+      .table {
+        font-size: 11px;
+      }
+      
+      .table th {
+        padding: 8px;
+        font-size: 11px;
+      }
+      
+      .table td {
+        padding: 8px;
+        font-size: 11px;
+      }
+      
+      .badge {
+        font-size: 9px;
+        padding: 3px 8px;
+      }
+      
+      .issues-list {
+        font-size: 12px;
+      }
+      
+      .issue-item {
+        padding: 10px;
+        font-size: 11px;
+      }
+      
+      /* Better touch targets for mobile */
+      .back-link {
+        min-height: 44px;
+        display: inline-flex;
+        align-items: center;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      body {
+        font-size: 12px;
+      }
+      
+      .header h1 {
+        font-size: 16px;
+      }
+      
+      .header .url {
+        font-size: 11px;
+      }
+      
+      .container {
+        padding: 0 10px;
+      }
+      
+      .card {
+        padding: 12px;
+      }
+      
+      .meta-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      
+      .stat-value {
+        font-size: 16px;
+      }
+      
+      .stat-label {
+        font-size: 9px;
+      }
+      
+      .url-cell {
+        max-width: 200px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <a href="index.html" class="back-link">← Back to Dashboard</a>
+    <h1>Page Details</h1>
+    <div class="url" id="pageUrl">Loading...</div>
+  </div>
+  
+  <div class="container">
+    <div id="loading" class="loading">
+      <p>Loading page data...</p>
+    </div>
+    
+    <div id="error" class="error" style="display: none;"></div>
+    
+    <div id="content" style="display: none;">
+      <!-- Overview Metrics Card -->
+      <div class="card">
+        <h2>Overview</h2>
+        <div class="stats-grid">
+          <div class="stat-card"><div class="stat-label">Status</div><div class="stat-value" id="statusTop">-</div></div>
+          <div class="stat-card"><div class="stat-label">Total Issues</div><div class="stat-value" id="issuesTotalTop">0</div></div>
+          <div class="stat-card critical"><div class="stat-label">High</div><div class="stat-value" id="issuesHighTop">0</div></div>
+          <div class="stat-card warning"><div class="stat-label">Medium</div><div class="stat-value" id="issuesMedTop">0</div></div>
+          <div class="stat-card"><div class="stat-label">Low</div><div class="stat-value" id="issuesLowTop">0</div></div>
+          <div class="stat-card"><div class="stat-label">Word Count</div><div class="stat-value" id="wordCountTop">0</div></div>
+          <div class="stat-card"><div class="stat-label">H1 / Headings</div><div class="stat-value" id="headingsTop">0 / 0</div></div>
+          <div class="stat-card"><div class="stat-label">Links (Int / Ext)</div><div class="stat-value" id="linksTop">0 / 0</div></div>
+          <div class="stat-card"><div class="stat-label">Images</div><div class="stat-value" id="imagesTop">0</div></div>
+        </div>
+      </div>
+
+      <!-- Issues Card -->
+      <div class="card">
+        <h2>Issues (<span id="issuesCount">0</span>)</h2>
+        <ul class="issues-list" id="issuesList"></ul>
+      </div>
+      
+      <!-- Metadata Card -->
+      <div class="card">
+        <h2>Page Metadata</h2>
+        <div class="meta-grid">
+          <div class="meta-item">
+            <div class="meta-label">Title</div>
+            <div class="meta-value" id="title">-</div>
+          </div>
+          <div class="meta-item">
+            <div class="meta-label">Title Length</div>
+            <div class="meta-value" id="titleLength">-</div>
+          </div>
+          <div class="meta-item">
+            <div class="meta-label">Meta Description</div>
+            <div class="meta-value" id="metaDescription">-</div>
+          </div>
+          <div class="meta-item">
+            <div class="meta-label">Description Length</div>
+            <div class="meta-value" id="descriptionLength">-</div>
+          </div>
+          <div class="meta-item">
+            <div class="meta-label">Status Code</div>
+            <div class="meta-value" id="status">-</div>
+          </div>
+          <div class="meta-item">
+            <div class="meta-label">Canonical URL</div>
+            <div class="meta-value" id="canonicalUrl">-</div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Content Metrics Card -->
+      <div class="card">
+        <h2>Content Metrics</h2>
+        <div class="meta-grid">
+          <div class="meta-item">
+            <div class="meta-label">Word Count</div>
+            <div class="meta-value" id="wordCount">-</div>
+          </div>
+          <div class="meta-item">
+            <div class="meta-label">HTML Size</div>
+            <div class="meta-value" id="htmlSize">-</div>
+          </div>
+          <div class="meta-item">
+            <div class="meta-label">Response Time</div>
+            <div class="meta-value" id="responseTime">-</div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Headings Card -->
+      <div class="card">
+        <h2>Headings (<span id="headingsCount">0</span>)</h2>
+        <table class="table" id="headingsTable">
+          <thead>
+            <tr>
+              <th>Level</th>
+              <th>Text</th>
+            </tr>
+          </thead>
+          <tbody id="headingsBody"></tbody>
+        </table>
+      </div>
+      
+      <!-- Links Card -->
+      <div class="card">
+        <h2>Links (<span id="linksCount">0</span>)</h2>
+        <table class="table" id="linksTable">
+          <thead>
+            <tr>
+              <th>URL</th>
+              <th>Text</th>
+              <th>Type</th>
+            </tr>
+          </thead>
+          <tbody id="linksBody"></tbody>
+        </table>
+      </div>
+      
+      <!-- Images Card -->
+      <div class="card">
+        <h2>Images (<span id="imagesCount">0</span>)</h2>
+        <table class="table" id="imagesTable">
+          <thead>
+            <tr>
+              <th>Source</th>
+              <th>Alt Text</th>
+              <th>Has Alt</th>
+            </tr>
+          </thead>
+          <tbody id="imagesBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    // Get URL parameter
+    const urlParams = new URLSearchParams(window.location.search);
+    const pageUrl = urlParams.get('url');
+    
+    if (!pageUrl) {
+      document.getElementById('error').textContent = 'No URL specified. Please provide a ?url parameter.';
+      document.getElementById('error').style.display = 'block';
+      document.getElementById('loading').style.display = 'none';
+    } else {
+      loadPageData(pageUrl);
+    }
+    
+    function findFilenameForUrl(index, rawUrl) {
+      if (index[rawUrl]) return index[rawUrl];
+      try {
+        const u = new URL(rawUrl);
+        const base = `${u.protocol}//${u.hostname}`;
+        const pathNoSlash = u.pathname.replace(/\/$/, '');
+        const pathWithSlash = u.pathname.endsWith('/') ? u.pathname : u.pathname + '/';
+        // Try toggling trailing slash
+        if (index[base + pathNoSlash + u.search]) return index[base + pathNoSlash + u.search];
+        if (index[base + pathWithSlash + u.search]) return index[base + pathWithSlash + u.search];
+        if (index[base + pathNoSlash]) return index[base + pathNoSlash];
+        if (index[base + pathWithSlash]) return index[base + pathWithSlash];
+        // Try www vs non-www
+        const noWww = u.hostname.replace(/^www\./, '');
+        const withWww = u.hostname.startsWith('www.') ? u.hostname : `www.${u.hostname}`;
+        const alt1 = `${u.protocol}//${noWww}${u.pathname}${u.search}`;
+        const alt2 = `${u.protocol}//${withWww}${u.pathname}${u.search}`;
+        if (index[alt1]) return index[alt1];
+        if (index[alt2]) return index[alt2];
+      } catch {}
+      return undefined;
+    }
+
+    async function loadPageData(url) {
+      try {
+        // First, get the URL index to find the filename
+        const indexResponse = await fetch('json/url-index.json');
+        const urlIndex = await indexResponse.json();
+        const filename = findFilenameForUrl(urlIndex, url);
+        
+        if (!filename) {
+          throw new Error('Page not found in URL index (try toggling trailing slash or www)');
+        }
+        
+        // Load page data
+        const pageResponse = await fetch(`json/pages/${filename}.json`);
+        const pageData = await pageResponse.json();
+        
+        // Update page URL in header
+        document.getElementById('pageUrl').textContent = pageData.url;
+        
+        // Display issues
+        displayIssues(pageData.issues || []);
+        
+        // Display metadata
+        displayMetadata(pageData);
+        
+        // Display headings
+        displayHeadings(pageData.headings || []);
+        
+        // Display links
+        displayLinks(pageData.links || []);
+        
+        // Display images
+        displayImages(pageData.images || []);
+        
+        // Show content, hide loading
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('content').style.display = 'block';
+        
+      } catch (error) {
+        console.error('Error loading page data:', error);
+        let msg = `Error loading page data: ${error.message}`;
+        if (location.protocol === 'file:') {
+          msg += '\nHint: Many browsers block fetch() from file://. Serve this folder via a local web server (e.g., `npx http-server seo-report-dezaan-500 -p 8787`) and open http://localhost:8787/page-viewer.html?url=...';
+        }
+        document.getElementById('error').textContent = msg;
+        document.getElementById('error').style.display = 'block';
+        document.getElementById('loading').style.display = 'none';
+      }
+    }
+    
+    function displayIssues(issues) {
+      const issuesList = document.getElementById('issuesList');
+      document.getElementById('issuesCount').textContent = issues.length;
+      
+      if (issues.length === 0) {
+        issuesList.innerHTML = '<li style="padding: 10px; color: #28a745;">✓ No issues found</li>';
+        return;
+      }
+      
+      const rank = (sev) => sev === 'high' ? 0 : (sev === 'medium' ? 1 : 2);
+      const sorted = issues.slice().sort((a,b) => rank(a.severity) - rank(b.severity));
+      issuesList.innerHTML = sorted.map(issue => {
+        const suggestion = getSuggestion(issue.message) || '';
+        const title = suggestion ? ` title="${escapeHtml(suggestion)}"` : '';
+        return `
+          <li class="issue-item ${issue.severity}">
+            <strong>${issue.severity.toUpperCase()}:</strong> ${escapeHtml(issue.message)}
+            ${suggestion ? `<span class="info-icon"${title}>i</span>` : ''}
+          </li>`;
+      }).join('');
+    }
+    
+    function displayMetadata(data) {
+      document.getElementById('title').textContent = data.title || 'No title';
+      document.getElementById('titleLength').textContent = `${data.titleLength || 0} characters (${data.titlePixelWidth || 0}px)`;
+      document.getElementById('metaDescription').textContent = data.metaDescription || 'No description';
+      document.getElementById('descriptionLength').textContent = `${data.metaDescriptionLength || 0} characters (${data.metaDescriptionPixelWidth || 0}px)`;
+      document.getElementById('status').innerHTML = `<span class="badge badge-${data.status === 200 ? 'success' : 'error'}">${data.status}</span>`;
+      document.getElementById('canonicalUrl').textContent = data.canonicalUrl || 'None';
+      document.getElementById('wordCount').textContent = data.contentMetrics?.wordCount || 0;
+      document.getElementById('htmlSize').textContent = formatBytes(data.contentMetrics?.htmlSize || 0);
+      document.getElementById('responseTime').textContent = `${data.performance?.responseTime || 0}ms`;
+
+      // Overview top metrics
+      const issues = Array.isArray(data.issues) ? data.issues : [];
+      const high = issues.filter(i => i.severity === 'high').length;
+      const med = issues.filter(i => i.severity === 'medium').length;
+      const low = issues.filter(i => i.severity === 'low').length;
+      const total = issues.length;
+      const internal = (data.links||[]).filter(l => l.isInternal).length;
+      const external = (data.links||[]).filter(l => !l.isInternal).length;
+      const headings = Array.isArray(data.headings) ? data.headings.length : 0;
+      const h1count = Array.isArray(data.headings) ? data.headings.filter(h => h.level===1).length : 0;
+      const images = Array.isArray(data.images) ? data.images.length : 0;
+
+      document.getElementById('statusTop').innerHTML = `<span class="badge badge-${data.status === 200 ? 'success' : 'error'}">${data.status}</span>`;
+      document.getElementById('issuesTotalTop').textContent = total;
+      document.getElementById('issuesHighTop').textContent = high;
+      document.getElementById('issuesMedTop').textContent = med;
+      document.getElementById('issuesLowTop').textContent = low;
+      document.getElementById('wordCountTop').textContent = data.contentMetrics?.wordCount || 0;
+      document.getElementById('headingsTop').textContent = `${h1count} / ${headings}`;
+      document.getElementById('linksTop').textContent = `${internal} / ${external}`;
+      document.getElementById('imagesTop').textContent = images;
+    }
+    
+    function displayHeadings(headings) {
+      const headingsBody = document.getElementById('headingsBody');
+      document.getElementById('headingsCount').textContent = headings.length;
+      
+      if (headings.length === 0) {
+        headingsBody.innerHTML = '<tr><td colspan="2">No headings found</td></tr>';
+        return;
+      }
+      
+      headingsBody.innerHTML = headings.map(h => `
+        <tr>
+          <td><strong>H${h.level}</strong></td>
+          <td>${escapeHtml(h.text)}</td>
+        </tr>
+      `).join('');
+    }
+    
+    function displayLinks(links) {
+      const linksBody = document.getElementById('linksBody');
+      document.getElementById('linksCount').textContent = links.length;
+      
+      if (links.length === 0) {
+        linksBody.innerHTML = '<tr><td colspan="3">No links found</td></tr>';
+        return;
+      }
+      
+      linksBody.innerHTML = links.slice(0, 100).map(link => `
+        <tr>
+          <td class="url-cell truncate" title="${escapeHtml(link.href)}">${escapeHtml(link.href)}</td>
+          <td class="truncate" title="${escapeHtml(link.text || '(no text)')}">${escapeHtml(link.text || '(no text)')}</td>
+          <td class="no-wrap">
+            <span class="badge badge-${link.isInternal ? 'info' : 'warning'}">
+              ${link.isInternal ? 'Internal' : 'External'}
+            </span>
+          </td>
+        </tr>
+      `).join('');
+      
+      if (links.length > 100) {
+        linksBody.innerHTML += `<tr><td colspan="3" style="text-align: center; color: #666;">... and ${links.length - 100} more links</td></tr>`;
+      }
+    }
+    
+    function displayImages(images) {
+      const imagesBody = document.getElementById('imagesBody');
+      document.getElementById('imagesCount').textContent = images.length;
+      
+      if (images.length === 0) {
+        imagesBody.innerHTML = '<tr><td colspan="3">No images found</td></tr>';
+        return;
+      }
+      
+      imagesBody.innerHTML = images.map(img => `
+        <tr>
+          <td class="url-cell truncate" title="${escapeHtml(img.src)}">${escapeHtml(img.src)}</td>
+          <td class="truncate" title="${escapeHtml(img.alt || '(no alt text)')}">${escapeHtml(img.alt || '(no alt text)')}</td>
+          <td class="no-wrap">
+            <span class="badge badge-${img.hasAlt ? 'success' : 'error'}">
+              ${img.hasAlt ? 'Yes' : 'No'}
+            </span>
+          </td>
+        </tr>
+      `).join('');
+    }
+    
+    function formatBytes(bytes) {
+      if (bytes === 0) return '0 Bytes';
+      const k = 1024;
+      const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+      const i = Math.floor(Math.log(bytes) / Math.log(k));
+      return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+    }
+    
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text == null ? '' : String(text);
+      return div.innerHTML;
+    }
+
+    function getSuggestion(message) {
+      if (!message) return '';
+      const m = message.toLowerCase();
+      if (m.includes('missing meta description')) return 'Add a concise, unique meta description (50–160 chars).';
+      if (m.includes('meta description too long')) return 'Trim the meta description to ≤160 characters.';
+      if (m.includes('title too long')) return 'Shorten the title to ≤60 chars or ~580px width.';
+      if (m.includes('title too short')) return 'Expand the title to ≥20 descriptive characters.';
+      if (m.includes('missing h1')) return 'Add a single H1 describing the page’s primary topic.';
+      if (m.includes('multiple h1')) return 'Use only one H1; demote others to H2/H3.';
+      if (m.includes('images without alt')) return 'Provide informative alt text for images (accessibility & SEO).';
+      if (m.includes('without width') || m.includes('without height')) return 'Add width/height attributes to images to avoid layout shifts.';
+      if (m.includes('thin content')) return 'Add substantial, original content (≥300 words recommended).';
+      if (m.includes('slow load') || m.includes('response time')) return 'Optimize images, reduce render-blocking resources, enable compression & caching.';
+      if (m.includes('redirect chain')) return 'Replace redirect chains with direct links; keep to ≤1 hop.';
+      if (m.includes('content-to-code ratio')) return 'Reduce heavy inline scripts/styles; prefer external, minified assets.';
+      if (m.includes('large inline script')) return 'Externalize large inline scripts and minify.';
+      if (m.includes('large inline style')) return 'Move large inline styles to CSS files and minify.';
+      if (m.includes('content-security-policy')) return 'Add a strict Content-Security-Policy header.';
+      if (m.includes('noindex')) return 'Remove unintended noindex; ensure indexable for important pages.';
+      if (m.includes('duplicate')) return 'Rewrite duplicates to be unique; use canonicals only when necessary.';
+      return '';
+    }
+  </script>
+</body>
+</html>
