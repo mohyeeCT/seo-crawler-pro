@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{url}} - SEO Analysis</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+      font-size: 13px;
+      line-height: 1.4;
+      color: #1a1a1a;
+      background: #f8f9fa;
+    }
+    
+    .header {
+      background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+      color: white;
+      padding: 12px 20px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .back-link {
+      color: white;
+      text-decoration: none;
+      font-size: 12px;
+      opacity: 0.9;
+      font-weight: 500;
+    }
+    
+    .back-link:hover {
+      opacity: 1;
+      text-decoration: underline;
+    }
+    
+    h1 {
+      font-size: 16px;
+      font-weight: 600;
+      margin: 8px 0 4px 0;
+      word-break: break-all;
+    }
+    
+    .status-badges {
+      margin-top: 6px;
+    }
+    
+    .container {
+      max-width: 1600px;
+      margin: 0 auto;
+      padding: 16px;
+    }
+    
+    .score-dashboard {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 10px;
+      margin-bottom: 16px;
+      background: white;
+      padding: 16px;
+      border-radius: 4px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .score-card {
+      text-align: center;
+      padding: 12px;
+      border-radius: 4px;
+      border: 2px solid #ddd;
+    }
+    
+    .score-card.excellent {
+      background: #d4edda;
+      border-color: #28a745;
+    }
+    
+    .score-card.good {
+      background: #d1ecf1;
+      border-color: #17a2b8;
+    }
+    
+    .score-card.warning {
+      background: #fff3cd;
+      border-color: #ffc107;
+    }
+    
+    .score-card.poor {
+      background: #f8d7da;
+      border-color: #dc3545;
+    }
+    
+    .score-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      font-weight: 600;
+      opacity: 0.8;
+      margin-bottom: 6px;
+    }
+    
+    .score-value {
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    
+    .score-status {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+    
+    .score-ratio {
+      font-size: 10px;
+      opacity: 0.7;
+      margin-top: 2px;
+    }
+    
+    .section {
+      background: white;
+      padding: 12px 16px;
+      margin-bottom: 12px;
+      border-radius: 4px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    
+    h2 {
+      font-size: 14px;
+      font-weight: 600;
+      color: #1a1a1a;
+      margin-bottom: 10px;
+      padding-bottom: 6px;
+      border-bottom: 2px solid #2c3e50;
+    }
+    
+    h3 {
+      font-size: 13px;
+      font-weight: 600;
+      margin: 12px 0 8px 0;
+    }
+    
+    .meta-grid {
+      display: grid;
+      grid-template-columns: 120px 1fr;
+      gap: 8px 12px;
+      font-size: 12px;
+    }
+    
+    .meta-label {
+      font-weight: 600;
+      color: #555;
+    }
+    
+    .meta-value {
+      color: #333;
+      word-break: break-word;
+    }
+    
+    .badge {
+      display: inline-block;
+      padding: 2px 6px;
+      border-radius: 2px;
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      margin-right: 4px;
+    }
+    
+    .badge-success {
+      background: #d4edda;
+      color: #155724;
+    }
+    
+    .badge-warning {
+      background: #fff3cd;
+      color: #856404;
+    }
+    
+    .badge-error {
+      background: #f8d7da;
+      color: #721c24;
+    }
+    
+    .badge-info {
+      background: #d1ecf1;
+      color: #0c5460;
+    }
+    
+    .issue-list {
+      margin: 8px 0;
+    }
+    
+    .issue-item {
+      padding: 6px 10px;
+      margin: 4px 0;
+      border-radius: 3px;
+      background: #fff3cd;
+      border-left: 3px solid #ffc107;
+      font-size: 12px;
+    }
+    
+    .issue-item.error {
+      background: #f8d7da;
+      border-left-color: #dc3545;
+    }
+    
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+      margin: 10px 0;
+    }
+    
+    thead {
+      background: #f8f9fa;
+    }
+    
+    th {
+      padding: 6px 8px;
+      text-align: left;
+      font-weight: 600;
+      font-size: 11px;
+      text-transform: uppercase;
+      color: #555;
+      border-bottom: 2px solid #dee2e6;
+    }
+    
+    td {
+      padding: 6px 8px;
+      border-bottom: 1px solid #f0f0f0;
+      max-width: 500px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    
+    td:hover {
+      overflow: visible;
+      white-space: normal;
+      word-break: break-all;
+      position: relative;
+      z-index: 10;
+      background: white;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    }
+    
+    tbody tr:hover {
+      background: #f8f9fa;
+    }
+    
+    code {
+      background: #f8f9fa;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-family: 'Monaco', 'Courier New', monospace;
+      font-size: 11px;
+    }
+    
+    pre {
+      background: #f8f9fa;
+      padding: 10px;
+      border-radius: 4px;
+      overflow-x: auto;
+      font-size: 11px;
+      border: 1px solid #dee2e6;
+      margin: 8px 0;
+    }
+    
+    .no-data {
+      color: #999;
+      font-style: italic;
+      font-size: 12px;
+    }
+    
+    .text-content {
+      background: #f8f9fa;
+      padding: 10px;
+      border-radius: 4px;
+      border-left: 3px solid #2c3e50;
+      font-size: 12px;
+      line-height: 1.5;
+    }
+    
+    /* Mobile Responsive Styles */
+    @media (max-width: 768px) {
+      body {
+        font-size: 12px;
+      }
+      
+      .header {
+        padding: 10px 15px;
+      }
+      
+      h1 {
+        font-size: 14px;
+      }
+      
+      .back-link {
+        font-size: 11px;
+      }
+      
+      .status-badges {
+        margin-top: 5px;
+      }
+      
+      .badge {
+        font-size: 9px;
+        padding: 2px 5px;
+        margin-right: 3px;
+      }
+      
+      .container {
+        padding: 12px;
+      }
+      
+      .score-dashboard {
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        gap: 8px;
+        padding: 12px;
+      }
+      
+      .score-card {
+        padding: 10px;
+      }
+      
+      .score-label {
+        font-size: 9px;
+      }
+      
+      .score-value {
+        font-size: 20px;
+      }
+      
+      .score-status {
+        font-size: 10px;
+      }
+      
+      .score-ratio {
+        font-size: 9px;
+      }
+      
+      .section {
+        padding: 10px 12px;
+        margin-bottom: 10px;
+      }
+      
+      h2 {
+        font-size: 13px;
+      }
+      
+      h3 {
+        font-size: 12px;
+      }
+      
+      .meta-grid {
+        grid-template-columns: 100px 1fr;
+        gap: 6px 10px;
+        font-size: 11px;
+      }
+      
+      .meta-label {
+        font-size: 11px;
+      }
+      
+      .issue-item {
+        padding: 5px 8px;
+        font-size: 11px;
+      }
+      
+      table {
+        font-size: 10px;
+      }
+      
+      th {
+        padding: 5px 6px;
+        font-size: 10px;
+      }
+      
+      td {
+        padding: 5px 6px;
+        max-width: 300px;
+      }
+      
+      code {
+        font-size: 10px;
+      }
+      
+      pre {
+        font-size: 10px;
+        padding: 8px;
+      }
+      
+      /* Better touch targets */
+      .back-link {
+        min-height: 44px;
+        display: inline-flex;
+        align-items: center;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .header {
+        padding: 8px 12px;
+      }
+      
+      h1 {
+        font-size: 12px;
+      }
+      
+      .container {
+        padding: 10px;
+      }
+      
+      .score-dashboard {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 6px;
+        padding: 10px;
+      }
+      
+      .score-value {
+        font-size: 18px;
+      }
+      
+      .meta-grid {
+        grid-template-columns: 1fr;
+        gap: 8px;
+      }
+      
+      .meta-label {
+        font-weight: 700;
+        margin-bottom: 2px;
+      }
+      
+      td {
+        max-width: 200px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <a href="index.html" class="back-link">← Back to Summary</a>
+    <h1>{{url}}</h1>
+    <div class="status-badges">
+      {{#if (eq status 200)}}
+        <span class="badge badge-success">{{status}} OK</span>
+      {{else}}
+        <span class="badge badge-error">{{status}}</span>
+      {{/if}}
+      <span class="badge badge-info">Depth {{depth}}</span>
+      {{#if performance.redirectChain.length}}
+        <span class="badge badge-warning">{{performance.redirectChain.length}} Redirects</span>
+      {{/if}}
+    </div>
+  </div>
+
+  <div class="container">
+    <!-- SEO Score Dashboard -->
+    <div class="score-dashboard">
+      {{#if score}}
+      <div class="score-card {{#if (eq score.grade 'excellent')}}excellent{{else if (eq score.grade 'good')}}good{{else if (eq score.grade 'fair')}}warning{{else}}poor{{/if}}">
+        <div class="score-label">Overall Score</div>
+        <div class="score-value">{{formatScore score.overallScore}}</div>
+        <div class="score-status">{{score.grade}}</div>
+        <div class="score-ratio">Total penalties: {{formatScore score.totalPenalties 1}}</div>
+      </div>
+      {{/if}}
+      <!-- Title Score -->
+      <div class="score-card {{#if title}}{{#if (lt titleLength 20)}}warning{{else if (gt titleLength 60)}}warning{{else}}excellent{{/if}}{{else}}poor{{/if}}">
+        <div class="score-label">Title</div>
+        <div class="score-value">{{#if titleLength}}{{titleLength}}{{else}}0{{/if}}</div>
+        <div class="score-status">
+          {{#if title}}
+            {{#if (lt titleLength 20)}}Too Short{{else if (gt titleLength 60)}}Too Long{{else}}Optimal{{/if}}
+          {{else}}Missing{{/if}}
+        </div>
+        <div class="score-ratio">Optimal: 20-60 chars</div>
+      </div>
+
+      <!-- Description Score -->
+      <div class="score-card {{#if metaDescription}}{{#if (lt metaDescriptionLength 50)}}warning{{else if (gt metaDescriptionLength 160)}}warning{{else}}excellent{{/if}}{{else}}poor{{/if}}">
+        <div class="score-label">Description</div>
+        <div class="score-value">{{#if metaDescriptionLength}}{{metaDescriptionLength}}{{else}}0{{/if}}</div>
+        <div class="score-status">
+          {{#if metaDescription}}
+            {{#if (lt metaDescriptionLength 50)}}Too Short{{else if (gt metaDescriptionLength 160)}}Too Long{{else}}Optimal{{/if}}
+          {{else}}Missing{{/if}}
+        </div>
+        <div class="score-ratio">Optimal: 50-160 chars</div>
+      </div>
+
+      <!-- H1 Score -->
+      <div class="score-card {{#countH1 headings}}{{#if (eq this 1)}}excellent{{else}}poor{{/if}}{{/countH1}}">
+        <div class="score-label">H1 Count</div>
+        <div class="score-value">{{#countH1 headings}}{{this}}{{/countH1}}</div>
+        <div class="score-status">
+          {{#countH1 headings}}{{#if (eq this 1)}}Optimal{{else if (eq this 0)}}Missing{{else}}Multiple{{/if}}{{/countH1}}
+        </div>
+        <div class="score-ratio">Optimal: Exactly 1</div>
+      </div>
+
+      <!-- Content Score -->
+      <div class="score-card {{#if (gt contentMetrics.wordCount 300)}}excellent{{else if (gt contentMetrics.wordCount 150)}}warning{{else}}poor{{/if}}">
+        <div class="score-label">Word Count</div>
+        <div class="score-value">{{contentMetrics.wordCount}}</div>
+        <div class="score-status">
+          {{#if (gt contentMetrics.wordCount 300)}}Good{{else if (gt contentMetrics.wordCount 150)}}Thin{{else}}Very Thin{{/if}}
+        </div>
+        <div class="score-ratio">Optimal: >300 words</div>
+      </div>
+
+      <!-- Images Alt Score -->
+      <div class="score-card {{#countMissing images}}{{#if (gt this 0)}}warning{{else}}excellent{{/if}}{{else}}good{{/countMissing}}">
+        <div class="score-label">Images Alt</div>
+        <div class="score-value">{{#countMissing images}}{{this}}{{/countMissing}}</div>
+        <div class="score-status">
+          {{#if images.length}}
+            {{#countMissing images}}{{#if (gt this 0)}}Missing Alt{{else}}All Have Alt{{/if}}{{/countMissing}}
+          {{else}}No Images{{/if}}
+        </div>
+        <div class="score-ratio">{{images.length}} total images</div>
+      </div>
+
+      <!-- Response Time Score -->
+      <div class="score-card {{#if (gt performance.responseTime 3000)}}poor{{else if (gt performance.responseTime 1000)}}warning{{else}}excellent{{/if}}">
+        <div class="score-label">Load Time</div>
+        <div class="score-value">{{performance.responseTime}}</div>
+        <div class="score-status">
+          {{#if (gt performance.responseTime 3000)}}Slow{{else if (gt performance.responseTime 1000)}}Moderate{{else}}Fast{{/if}}
+        </div>
+        <div class="score-ratio">Optimal: <1000ms</div>
+      </div>
+
+      <!-- Links Score -->
+      <div class="score-card {{#if (gt links.length 100)}}warning{{else}}good{{/if}}">
+        <div class="score-label">Total Links</div>
+        <div class="score-value">{{links.length}}</div>
+        <div class="score-status">
+          {{#if (gt links.length 100)}}Many{{else}}Reasonable{{/if}}
+        </div>
+        <div class="score-ratio">{{#countInternal links}}{{this}}{{/countInternal}} internal</div>
+      </div>
+
+      <!-- Overall Issues Score -->
+      <div class="score-card {{#if issues.length}}{{#if (gt issues.length 3)}}poor{{else}}warning{{/if}}{{else}}excellent{{/if}}">
+        <div class="score-label">Issues</div>
+        <div class="score-value">{{issues.length}}</div>
+        <div class="score-status">
+          {{#if issues.length}}{{#if (gt issues.length 3)}}Many Issues{{else}}Few Issues{{/if}}{{else}}No Issues{{/if}}
+        </div>
+        <div class="score-ratio">Optimal: 0 issues</div>
+      </div>
+    </div>
+
+    {{#if score.recommendations.length}}
+    <div class="section">
+      <h2>📈 Top Recommendations</h2>
+      <ul class="issue-list">
+        {{#each score.recommendations}}
+        <li>{{this}}</li>
+        {{/each}}
+      </ul>
+    </div>
+    {{/if}}
+
+    <!-- Issues Section -->
+    {{#if issues.length}}
+    <div class="section">
+      <h2>⚠️ Issues Found ({{issues.length}})</h2>
+      <div class="issue-list">
+        {{#each issues}}
+        <div class="issue-item {{#if (eq this.severity "high")}}error{{/if}}">
+          <span class="badge {{severityClass this.severity}}">{{severityLabel this.severity}}</span>
+          {{this.message}}
+        </div>
+        {{/each}}
+      </div>
+    </div>
+    {{/if}}
+
+    <!-- Title & Description -->
+    <div class="section">
+      <h2>Title & Meta Description</h2>
+      <div class="meta-grid">
+        <div class="meta-label">Title</div>
+        <div class="meta-value">{{#if title}}{{title}}{{else}}<span class="no-data">(No title)</span>{{/if}}</div>
+        
+        <div class="meta-label">Title Length</div>
+        <div class="meta-value">
+          {{titleLength}} chars
+          {{#if (lt titleLength 20)}}<span class="badge badge-warning">Too Short</span>{{/if}}
+          {{#if (gt titleLength 60)}}<span class="badge badge-warning">Too Long</span>{{/if}}
+        </div>
+        
+        <div class="meta-label">Description</div>
+        <div class="meta-value">{{#if metaDescription}}{{metaDescription}}{{else}}<span class="no-data">(No description)</span>{{/if}}</div>
+        
+        <div class="meta-label">Desc Length</div>
+        <div class="meta-value">
+          {{metaDescriptionLength}} chars
+          {{#if (lt metaDescriptionLength 50)}}<span class="badge badge-warning">Too Short</span>{{/if}}
+          {{#if (gt metaDescriptionLength 160)}}<span class="badge badge-warning">Too Long</span>{{/if}}
+        </div>
+      </div>
+    </div>
+
+    <!-- Indexability -->
+    {{#if indexability}}
+    <div class="section">
+      <h2>Indexability</h2>
+      <div class="meta-grid">
+        <div class="meta-label">Status</div>
+        <div class="meta-value">
+          {{#if indexability.isIndexable}}
+            <span class="badge badge-success">✅ Indexable</span>
+          {{else}}
+            <span class="badge badge-error">❌ Not Indexable</span>
+          {{/if}}
+        </div>
+        
+        {{#unless indexability.isIndexable}}
+        <div class="meta-label">Reasons</div>
+        <div class="meta-value">
+          <ul style="margin: 0; padding-left: 20px;">
+            {{#each indexability.reasons}}
+            <li style="color: #dc3545;">{{this}}</li>
+            {{/each}}
+          </ul>
+        </div>
+        {{/unless}}
+      </div>
+    </div>
+    {{/if}}
+
+    <!-- Technical SEO -->
+    <div class="section">
+      <h2>Technical SEO</h2>
+      <div class="meta-grid">
+        <div class="meta-label">Canonical</div>
+        <div class="meta-value">{{#if canonicalUrl}}<code>{{canonicalUrl}}</code>{{else}}<span class="no-data">(None)</span>{{/if}}</div>
+        
+        <div class="meta-label">Robots</div>
+        <div class="meta-value">
+          {{#if robotsDirectives.length}}
+            {{#each robotsDirectives}}<span class="badge {{#if (eq this "noindex")}}badge-warning{{else}}badge-info{{/if}}">{{this}}</span>{{/each}}
+          {{else}}
+            <span class="badge badge-success">index, follow (default)</span>
+          {{/if}}
+        </div>
+        
+        <div class="meta-label">Response Time</div>
+        <div class="meta-value">
+          {{performance.responseTime}}ms
+          {{#if (gt performance.responseTime 3000)}}<span class="badge badge-error">Slow</span>{{else if (gt performance.responseTime 1000)}}<span class="badge badge-warning">Moderate</span>{{else}}<span class="badge badge-success">Fast</span>{{/if}}
+        </div>
+        
+        <div class="meta-label">HTML Size</div>
+        <div class="meta-value">{{contentMetrics.htmlSize}} bytes ({{#divide contentMetrics.htmlSize 1024}}{{/divide}} KB)</div>
+      </div>
+    </div>
+
+    <!-- Headings -->
+    <div class="section">
+      <h2>Headings ({{headings.length}} total)</h2>
+      {{#if headings.length}}
+      <table>
+        <thead>
+          <tr>
+            <th>Level</th>
+            <th>Text</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{#each headings}}
+          <tr>
+            <td><span class="badge badge-info">H{{this.level}}</span></td>
+            <td>{{this.text}}</td>
+          </tr>
+          {{/each}}
+        </tbody>
+      </table>
+      {{else}}
+      <p class="no-data">No headings found</p>
+      {{/if}}
+    </div>
+
+    <!-- Content Metrics -->
+    <div class="section">
+      <h2>Content Metrics</h2>
+      <div class="meta-grid">
+        <div class="meta-label">Word Count</div>
+        <div class="meta-value">
+          {{contentMetrics.wordCount}}
+          {{#if (lt contentMetrics.wordCount 300)}}<span class="badge badge-warning">Thin Content</span>{{else}}<span class="badge badge-success">Good</span>{{/if}}
+        </div>
+        
+        <div class="meta-label">Text Length</div>
+        <div class="meta-value">{{contentMetrics.textLength}} characters</div>
+        
+        <div class="meta-label">Internal Links</div>
+        <div class="meta-value">{{#countInternal links}}{{this}}{{/countInternal}}</div>
+        
+        <div class="meta-label">External Links</div>
+        <div class="meta-value">{{#countExternal links}}{{this}}{{/countExternal}}</div>
+      </div>
+    </div>
+
+    <!-- Images -->
+    {{#if images.length}}
+    <div class="section">
+      <h2>Images ({{images.length}} total, {{#countMissing images}}{{this}}{{/countMissing}} without alt)</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Image URL</th>
+            <th>Alt Text</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{#each images}}
+          <tr>
+            <td title="{{this.src}}">{{truncateUrl this.src 60}}</td>
+            <td>{{this.alt}}</td>
+            <td>{{#if this.hasAlt}}<span class="badge badge-success">Has Alt</span>{{else}}<span class="badge badge-error">No Alt</span>{{/if}}</td>
+          </tr>
+          {{/each}}
+        </tbody>
+      </table>
+    </div>
+    {{/if}}
+
+    <!-- Links (collapsed by default) -->
+    {{#if links.length}}
+    <div class="section">
+      <h2>Links ({{links.length}} total: {{#countInternal links}}{{this}}{{/countInternal}} internal, {{#countExternal links}}{{this}}{{/countExternal}} external)</h2>
+      <details>
+        <summary style="cursor: pointer; font-weight: 600; padding: 8px 0;">Show all links</summary>
+        <table>
+          <thead>
+            <tr>
+              <th>URL</th>
+              <th>Anchor Text</th>
+              <th>Type</th>
+              <th>Rel</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#each links}}
+            <tr>
+              <td title="{{this.href}}">{{truncateUrl this.href 70}}</td>
+              <td>{{this.text}}</td>
+              <td>{{#if this.isInternal}}<span class="badge badge-info">Internal</span>{{else}}<span class="badge badge-warning">External</span>{{/if}}</td>
+              <td>{{#if this.rel}}{{this.rel}}{{else}}-{{/if}}</td>
+            </tr>
+            {{/each}}
+          </tbody>
+        </table>
+      </details>
+    </div>
+    {{/if}}
+
+    <!-- External Scripts -->
+    {{#if externalScripts.length}}
+    <div class="section">
+      <h2>External Scripts ({{externalScripts.length}})</h2>
+      <details>
+        <summary style="cursor: pointer; font-weight: 600; padding: 8px 0;">Show all external scripts</summary>
+        <table>
+          <thead>
+            <tr>
+              <th>Script URL</th>
+              <th>Async</th>
+              <th>Defer</th>
+              <th>Type</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#each externalScripts}}
+            <tr>
+              <td title="{{this.src}}" style="font-family: monospace; font-size: 11px;">{{truncateUrl this.src 80}}</td>
+              <td>{{#if this.async}}<span class="badge badge-success">Yes</span>{{else}}<span class="badge badge-warning">No</span>{{/if}}</td>
+              <td>{{#if this.defer}}<span class="badge badge-success">Yes</span>{{else}}<span class="badge badge-warning">No</span>{{/if}}</td>
+              <td>{{#if this.type}}{{this.type}}{{else}}<span style="color: #999;">default</span>{{/if}}</td>
+            </tr>
+            {{/each}}
+          </tbody>
+        </table>
+      </details>
+    </div>
+    {{/if}}
+
+    <!-- Social Tags -->
+    {{#if (hasOpenGraph openGraph)}}
+    <div class="section">
+      <h2>Open Graph Tags</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Property</th>
+            <th>Content</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{#each openGraph}}
+          <tr>
+            <td><code>{{@key}}</code></td>
+            <td>{{this}}</td>
+          </tr>
+          {{/each}}
+        </tbody>
+      </table>
+    </div>
+    {{/if}}
+
+    {{#if (hasTwitterCards twitterCards)}}
+    <div class="section">
+      <h2>Twitter Card Tags</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Property</th>
+            <th>Content</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{#each twitterCards}}
+          <tr>
+            <td><code>{{@key}}</code></td>
+            <td>{{this}}</td>
+          </tr>
+          {{/each}}
+        </tbody>
+      </table>
+    </div>
+    {{/if}}
+
+    <!-- Structured Data -->
+    {{#if structuredData.jsonLd.length}}
+    <div class="section">
+      <h2>JSON-LD Structured Data</h2>
+      {{#each structuredData.jsonLd}}
+      <details style="margin: 8px 0;">
+        <summary style="cursor: pointer; font-weight: 600; padding: 4px 0;">
+          {{#if this.error}}<span class="badge badge-error">Parsing Error</span>{{else}}<span class="badge badge-info">Schema Data</span>{{/if}}
+        </summary>
+        <pre>{{json this}}</pre>
+      </details>
+      {{/each}}
+    </div>
+    {{/if}}
+
+    {{#if hreflangs.length}}
+    <div class="section">
+      <h2>hreflang Attributes</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Language</th>
+            <th>URL</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{#each hreflangs}}
+          <tr>
+            <td><span class="badge badge-info">{{this.lang}}</span></td>
+            <td><code>{{this.href}}</code></td>
+          </tr>
+          {{/each}}
+        </tbody>
+      </table>
+    </div>
+    {{/if}}
+
+    {{#if performance.redirectChain.length}}
+    <div class="section">
+      <h2>Redirect Chain ({{performance.redirectChain.length}} redirects)</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>From</th>
+            <th>To</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{#each performance.redirectChain}}
+          <tr>
+            <td style="max-width: 400px; overflow: hidden; text-overflow: ellipsis;">{{this.from}}</td>
+            <td style="max-width: 400px; overflow: hidden; text-overflow: ellipsis;">{{this.to}}</td>
+            <td><span class="badge badge-info">{{this.status}}</span></td>
+          </tr>
+          {{/each}}
+        </tbody>
+      </table>
+    </div>
+    {{/if}}
+
+    <div style="margin-top: 24px; padding-top: 16px; border-top: 1px solid #ddd; text-align: center;">
+      <a href="index.html" class="back-link" style="color: #0066cc;">← Back to Summary</a>
+    </div>
+  </div>
+</body>
+</html>
