@@ -1,0 +1,78 @@
+{
+  "name": "seo-reporter",
+  "version": "2.2.0",
+  "description": "High-performance SEO analysis CLI with 220+ checks, Rust-powered duplicate detection, worker thread parallelization, and clean progress UI. Analyzes 1000+ page sites in under 2 minutes. Achieves ~85% Screaming Frog parity.",
+  "type": "module",
+  "main": "./dist/cli.js",
+  "bin": {
+    "seo-reporter": "./dist/cli.js"
+  },
+  "files": [
+    "dist/**",
+    "templates/**",
+    "native/*.node",
+    "native/index.cjs",
+    "native/index.d.ts",
+    "README.md",
+    "CHANGELOG.md"
+  ],
+  "scripts": {
+    "setup:rust": "node scripts/setup-rust.js",
+    "build:rust": "bash -c 'source $HOME/.cargo/env 2>/dev/null || true && napi build --platform --release --manifest-path native/Cargo.toml'",
+    "build:rust-only": "bash -c 'source $HOME/.cargo/env 2>/dev/null || true && napi build --platform --release --manifest-path native/Cargo.toml'",
+    "build:ts-only": "tsc",
+    "build": "pnpm build:rust && tsc",
+    "start": "node dist/cli.js",
+    "dev": "tsx src/cli.ts",
+    "serve": "node dist/cli.js serve",
+    "prepack": "tsc",
+    "test": "tsx --test tests/scoring.test.ts"
+  },
+  "napi": {
+    "binaryName": "seo-analyzer-native",
+    "targets": [
+      "x86_64-apple-darwin",
+      "aarch64-apple-darwin",
+      "x86_64-pc-windows-msvc",
+      "x86_64-unknown-linux-gnu",
+      "aarch64-unknown-linux-gnu"
+    ]
+  },
+  "keywords": [
+    "seo",
+    "crawler",
+    "metadata",
+    "audit",
+    "cli"
+  ],
+  "author": "",
+  "license": "ISC",
+  "engines": {
+    "node": ">=18"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "packageManager": "pnpm@9.14.2+sha1.5202b50ab92394b3c922d2e293f196e2df6d441b",
+  "dependencies": {
+    "axios": "^1.12.2",
+    "chalk": "^5.6.2",
+    "commander": "^14.0.1",
+    "css-select": "^5.1.0",
+    "dictionary-en": "^3.2.0",
+    "domutils": "^3.1.0",
+    "fast-xml-parser": "^4.3.2",
+    "handlebars": "^4.7.8",
+    "htmlparser2": "^9.1.0",
+    "nspell": "^2.1.5",
+    "ora": "^9.0.0",
+    "p-limit": "^7.1.1",
+    "robots-parser": "^3.0.1"
+  },
+  "devDependencies": {
+    "@napi-rs/cli": "^3.3.1",
+    "@types/node": "^24.7.2",
+    "tsx": "^4.20.6",
+    "typescript": "^5.9.3"
+  }
+}
