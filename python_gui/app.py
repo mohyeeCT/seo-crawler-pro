@@ -55,10 +55,15 @@ with st.sidebar:
     max_pages = st.slider("Max pages", 5, 500, 50, step=5)
     wait_strategy = st.selectbox(
         "JS wait strategy",
-        ["networkidle", "domcontentloaded", "load"],
-        help="networkidle waits for all network requests to finish. Slower but most accurate.",
+        ["load", "networkidle", "domcontentloaded"],
+        help="load = page loaded + JS hydration wait (recommended for SPAs). networkidle = wait for all requests to settle (accurate but slow). domcontentloaded = fastest but misses JS-rendered content.",
     )
-    timeout = st.slider("Page timeout (seconds)", 5, 60, 15)
+    js_hydration_wait = st.slider(
+        "JS hydration wait (ms)",
+        min_value=0, max_value=5000, value=2000, step=500,
+        help="Extra wait after page load for JS frameworks to populate title/meta/H1. Set to 0 for static sites.",
+    )
+    timeout = st.slider("Page timeout (seconds)", 10, 90, 30)
     st.markdown("---")
     st.markdown("### Jina AI")
     st.caption("Get a free key at jina.ai — first 1M tokens free")
