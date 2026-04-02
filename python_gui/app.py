@@ -110,6 +110,7 @@ if run_btn:
             crawl_site(
                 start_url=url_input, max_pages=max_pages,
                 wait_until=wait_strategy, timeout_ms=timeout * 1000,
+                js_hydration_wait=js_hydration_wait,
                 progress_callback=on_crawl_progress,
             )
         )
