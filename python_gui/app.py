@@ -152,7 +152,7 @@ if st.session_state.analysis:
         cols = ["url","status_code","title","title_length","meta_desc_length","h1","h1_count","h2_count","word_count","images_missing_alt","schema_types","seo_score","issue_count","cluster_label"]
         sample = analysis["pages"][0] if analysis["pages"] else {}
         df = pd.DataFrame(analysis["pages"])[[c for c in cols if c in sample]]
-        st.dataframe(df.style.applymap(lambda v: "background-color: #d4edda" if v >= 80 else "background-color: #fff3cd" if v >= 60 else "background-color: #f8d7da", subset=["seo_score"]), use_container_width=True, height=500)
+        st.dataframe(df.style.map(lambda v: "background-color: #d4edda" if v >= 80 else "background-color: #fff3cd" if v >= 60 else "background-color: #f8d7da", subset=["seo_score"]), use_container_width=True, height=500)
         st.download_button("Download CSV", df.to_csv(index=False), file_name="seo_crawl.csv", mime="text/csv")
 
     with tab2:
