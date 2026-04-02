@@ -31,7 +31,7 @@ def _get_chromium_path():
             return candidate
     return None
 
-async def crawl_site(start_url, max_pages=100, wait_until="networkidle", timeout_ms=15000, progress_callback=None):
+async def crawl_site(start_url, max_pages=100, wait_until="load", timeout_ms=30000, js_hydration_wait=2000, progress_callback=None):
     from playwright.async_api import async_playwright
 
     base = urlparse(start_url)
@@ -49,6 +49,7 @@ async def crawl_site(start_url, max_pages=100, wait_until="networkidle", timeout
             "--disable-gpu",
             "--disable-setuid-sandbox",
             "--single-process",
+            "--disable-blink-features=AutomationControlled",
         ],
     }
     if chromium_path:
@@ -68,6 +69,10 @@ async def crawl_site(start_url, max_pages=100, wait_until="networkidle", timeout
             try:
                 page = await context.new_page()
                 response = await page.goto(url, wait_until=wait_until, timeout=timeout_ms)
+                # Wait for JS frameworks (React/Next.js/Vue) to hydrate the DOM.
+                # 'load' fires before client-side JS runs, so we give it a moment.
+                if js_hydration_wait > 0:
+                    await page.wait_for_timeout(js_hydration_wait)
                 status    = response.status if response else 0
                 final_url = page.url
 
